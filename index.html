@@ -9,7 +9,7 @@
 <body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
-#redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:420px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#redtail-route{--red:#680f02;--red-hi:#7f1604;--brand:#680f02;--brand-hi:#7f1604;--cream:#f3eee7;--ink:#fff;--text:#111;--muted:rgba(0,0,0,.62);--glass:rgba(243,238,231,.94);--rim:#000;--font:proxima-nova,'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--display:ff-market-web,'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:420px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #redtail-route *{box-sizing:border-box}
 #redtail-route #rt-map{position:absolute;inset:0}
 #redtail-route #rt-map canvas{touch-action:none;cursor:grab}
@@ -24,53 +24,53 @@
 #redtail-route.show-credits .cesium-credit-textContainer{padding:6px 9px;background:rgba(24,19,16,.82)}
 #redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
 #redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
-#redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:2px;align-items:center;padding:12px 14px 10px 12px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:transform .45s var(--ease),opacity .3s ease}
+#redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:2px;align-items:center;padding:12px 14px 10px 12px;color:var(--text);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--rim);border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.28);transition:transform .45s var(--ease),opacity .3s ease}
 #redtail-route.min .panel{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
-#redtail-route .play{grid-row:1/span 3;width:56px;height:56px;padding:0;margin:0;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 6px 16px rgba(212,42,47,.45);transition:transform .15s,background .15s;touch-action:manipulation}
-#redtail-route .play:active{transform:scale(.94)}
-#redtail-route .play:hover{background:var(--red-hi)}
+#redtail-route .play{grid-row:1/span 3;width:58px;height:58px;padding:0;margin:0;border-radius:10px;border:1px solid #000;background:var(--brand);color:var(--cream);display:grid;place-items:center;cursor:pointer;transition:transform .15s,background-color .15s;touch-action:manipulation}
+#redtail-route .play:active{transform:scale(.95)}
+#redtail-route .play:hover{background:var(--brand-hi)}
 #redtail-route .play svg{width:22px;height:22px}
 #redtail-route .head{display:flex;align-items:flex-start;gap:8px;min-width:0}
 #redtail-route .head>div{flex:1;min-width:0}
-#redtail-route .rt-h{margin:0;font-size:1.2rem;font-weight:700;line-height:1.15;letter-spacing:.005em}
-#redtail-route .sub{margin:1px 0 0;font-size:.92rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-#redtail-route .collapse{display:none;flex-shrink:0;width:32px;height:32px;margin:-4px -6px 0 0;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;place-items:center}
+#redtail-route .rt-h{margin:0;font-family:var(--display);font-size:1.3rem;font-weight:700;line-height:1.1;text-transform:uppercase;letter-spacing:.01em;color:#000}
+#redtail-route .sub{margin:2px 0 0;font-size:.9rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+#redtail-route .collapse{display:none;flex-shrink:0;width:32px;height:32px;margin:-4px -6px 0 0;padding:0;border:1px solid #000;border-radius:10px;background:transparent;color:#000;cursor:pointer;place-items:center}
 #redtail-route.playing .collapse{display:grid}
 #redtail-route .collapse svg{width:16px;height:16px}
 #redtail-route input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;margin:2px 0 0;padding:0;background:transparent;border:0;cursor:pointer;touch-action:manipulation}
-#redtail-route input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--red-hi) var(--p,0%),rgba(255,255,255,.22) var(--p,0%))}
-#redtail-route input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
-#redtail-route input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--red-hi)}
-#redtail-route input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 4px rgba(232,69,60,.55),0 2px 6px rgba(0,0,0,.4)}
-#redtail-route input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 4px rgba(232,69,60,.55)}
+#redtail-route input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--brand) var(--p,0%),rgba(0,0,0,.16) var(--p,0%))}
+#redtail-route input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(0,0,0,.16)}
+#redtail-route input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--brand)}
+#redtail-route input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+#redtail-route input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--brand)}
 #redtail-route .row{display:flex;align-items:center;gap:8px}
-#redtail-route .dist{flex:1;font-size:.95rem;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-#redtail-route .dist b{color:#fff;font-weight:700}
-#redtail-route .row select,#redtail-route .row .ghost{font:600 .95rem var(--font);color:#fff;background:rgba(255,255,255,.1);border:1px solid var(--rim);border-radius:10px;min-height:36px;margin:0;cursor:pointer;touch-action:manipulation}
-#redtail-route .row select{-webkit-appearance:none;appearance:none;padding:0 26px 0 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
+#redtail-route .dist{flex:1;font-size:.92rem;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#redtail-route .dist b{color:#000;font-weight:700}
+#redtail-route .row select,#redtail-route .row .ghost{font:600 .85rem var(--font);text-transform:uppercase;letter-spacing:.02em;color:#000;background-color:transparent;border:1px solid #000;border-radius:10px;min-height:36px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .row select{-webkit-appearance:none;appearance:none;padding:0 26px 0 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:12px}
 #redtail-route .row select option{color:#000}
-#redtail-route .row .ghost{padding:0 12px}
-#redtail-route .row select:hover,#redtail-route .row .ghost:hover{background-color:rgba(255,255,255,.18)}
-#redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),400px);display:flex;align-items:center;gap:10px;padding:6px 6px 6px 6px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.3);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
+#redtail-route .row .ghost{padding:0 14px}
+#redtail-route .row select:hover,#redtail-route .row .ghost:hover{background-color:rgba(0,0,0,.07)}
+#redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),400px);display:flex;align-items:center;gap:10px;padding:6px;color:var(--text);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #000;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.26);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
 #redtail-route.min .mini{transform:translate(-50%,0);opacity:1;pointer-events:auto}
-#redtail-route .mini .mbtn{flex-shrink:0;width:40px;height:40px;padding:0;margin:0;border:0;border-radius:50%;display:grid;place-items:center;color:#fff;cursor:pointer;touch-action:manipulation}
-#redtail-route .mini .mplay{background:var(--red)}
-#redtail-route .mini .mexpand{background:rgba(255,255,255,.12)}
+#redtail-route .mini .mbtn{flex-shrink:0;width:40px;height:40px;padding:0;margin:0;border:1px solid #000;border-radius:10px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
+#redtail-route .mini .mplay{background:var(--brand);color:var(--cream)}
+#redtail-route .mini .mexpand{background:transparent;color:#000}
 #redtail-route .mini svg{width:18px;height:18px}
-#redtail-route .mbar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.22);overflow:hidden}
-#redtail-route .mbar i{display:block;height:100%;width:0;background:var(--red-hi);border-radius:2px}
-#redtail-route .mdist{font-size:.95rem;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-#redtail-route .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 40px);padding:9px 16px;border-radius:999px;background:rgba(24,19,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:1rem;font-weight:600;text-align:center;pointer-events:none;transition:opacity .5s}
+#redtail-route .mbar{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.16);overflow:hidden}
+#redtail-route .mbar i{display:block;height:100%;width:0;background:var(--brand);border-radius:2px}
+#redtail-route .mdist{font-size:.95rem;font-weight:600;color:#000;font-variant-numeric:tabular-nums;white-space:nowrap}
+#redtail-route .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;max-width:calc(100% - 40px);padding:9px 16px;border-radius:999px;background:rgba(24,19,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:1rem;font-weight:600;text-align:center;pointer-events:none;transition:opacity .5s}
 #redtail-route .hint.gone{opacity:0}
-#redtail-route .toast{position:absolute;left:50%;top:44px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(24,19,16,.8);font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s}
+#redtail-route .toast{position:absolute;left:50%;top:44px;transform:translateX(-50%);color:#fff;padding:6px 12px;border-radius:999px;background:rgba(24,19,16,.8);font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s}
 #redtail-route .toast.on{opacity:1}
 #redtail-route :focus-visible{outline:3px solid #ffd27a;outline-offset:2px}
 #redtail-route .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#redtail-route .fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:1.05rem;line-height:1.45;padding:24px;text-align:center;background:#3a2a22;z-index:5}
+#redtail-route .fallback{position:absolute;inset:0;color:#fff;display:grid;place-items:center;font-size:1.05rem;line-height:1.45;padding:24px;text-align:center;background:#3a2a22;z-index:5}
 @media (min-width:700px){
 #redtail-route .panel{left:16px;right:16px;bottom:16px;padding:14px 18px 12px 14px;column-gap:16px}
-#redtail-route .play{width:62px;height:62px}
-#redtail-route .rt-h{font-size:1.4rem}
+#redtail-route .play{width:64px;height:64px}
+#redtail-route .rt-h{font-size:1.5rem}
 #redtail-route .mini{bottom:16px}
 }
 @media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint{transition:none}}
@@ -104,7 +104,7 @@
         <option value="40">40×</option>
         <option value="80">80×</option>
       </select>
-      <button class="ghost" id="rt-overview">Whole route</button>
+      <button class="ghost" id="rt-overview">Overview</button>
     </div>
   </div>
 
@@ -304,23 +304,34 @@ async function start() {
   samples.push(cartAt(TOTAL_T));
 
   let t = 0;
-  const RED = C.Color.fromCssColorString('#e8453c');
+  const RED = C.Color.fromCssColorString('#e8453c');         // in-flight progress glow
+  const BRAND = C.Color.fromCssColorString('#680f02');       // Redtail red
+  const CREAM = C.Color.fromCssColorString('#f3eee7');
 
-  viewer.entities.add({ polyline: {
+  const baseLine = viewer.entities.add({ show: false, polyline: {
     positions: samples, width: 3,
     material: C.Color.WHITE.withAlpha(0.32)
   }});
-  viewer.entities.add({ polyline: {
+  const progLine = viewer.entities.add({ show: false, polyline: {
     positions: new C.CallbackProperty(() => samples.slice(0, Math.floor(t / STEP) + 1).concat([cartAt(t)]), false),
     width: 10,
     material: new C.PolylineGlowMaterialProperty({ color: RED, glowPower: 0.22, taperPower: 1 })
   }});
+  /* Start screen: the whole route in solid Redtail red */
+  const introLine = viewer.entities.add({ polyline: {
+    positions: samples, width: 6,
+    material: new C.PolylineOutlineMaterialProperty({ color: BRAND, outlineColor: CREAM, outlineWidth: 1.5 })
+  }});
+  function leaveIntro() {
+    if (!introLine.show) return;
+    introLine.show = false; baseLine.show = true; progLine.show = true;
+  }
   viewer.entities.add({
     position: C.Cartesian3.fromDegrees(W[0][0], W[0][1], CONFIG.fieldElevationFt * 0.3048 + GEOID_M + 20),
-    point: { pixelSize: 9, color: RED, outlineColor: C.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    point: { pixelSize: 9, color: BRAND, outlineColor: C.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
     label: {
       text: CONFIG.homeLabel, font: '600 14px "Barlow Semi Condensed", sans-serif',
-      fillColor: C.Color.WHITE, showBackground: true, backgroundColor: C.Color.fromCssColorString('rgba(24,19,16,0.8)'),
+      fillColor: C.Color.WHITE, showBackground: true, backgroundColor: BRAND.withAlpha(0.95),
       backgroundPadding: new C.Cartesian2(10, 6), verticalOrigin: C.VerticalOrigin.BOTTOM,
       pixelOffset: new C.Cartesian2(0, -12), disableDepthTestDistance: Number.POSITIVE_INFINITY
     }
@@ -331,8 +342,8 @@ async function start() {
   const PARTS = [
     { off: [0, 0, 0],     dim: [48, 7, 7],   color: C.Color.WHITE },
     { off: [6, 0, 3.5],   dim: [9, 64, 1.6], color: C.Color.WHITE },
-    { off: [-21, 0, 1],   dim: [6, 22, 1.4], color: RED },
-    { off: [-21, 0, 6.5], dim: [8, 1.6, 11], color: RED }
+    { off: [-21, 0, 1],   dim: [6, 22, 1.4], color: BRAND },
+    { off: [-21, 0, 6.5], dim: [8, 1.6, 11], color: BRAND }
   ];
   function partWorld(off) {
     const T = rad(planeTrack), s = Math.sin(T), c = Math.cos(T);
@@ -362,10 +373,23 @@ async function start() {
   }
 
   /* ---------- camera: always orbits a target (the plane, or the whole route) ---------- */
-  const routeSphere = C.BoundingSphere.fromPoints(samples);
+  /* Overview: straight down, north up, framed to fit the whole route above the control panel */
+  const lats = W.map(p => p[1]), lngs = W.map(p => p[0]);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+  const midLat = (minLat + maxLat) / 2, midLng = (minLng + maxLng) / 2;
+  const nsHalf = (maxLat - minLat) * 111320 / 2, ewHalf = (maxLng - minLng) * 111320 * Math.cos(rad(midLat)) / 2;
+  const routeCenter = C.Cartesian3.fromDegrees(midLng, midLat - (maxLat - minLat) * 0.07, CONFIG.fieldElevationFt * 0.3048);
+  const TOP_PITCH = -89.5;
+  function fitRange() {
+    const fov = camera.frustum.fov || rad(60), w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, a = w / h;
+    const vHalf = a >= 1 ? Math.atan(Math.tan(fov / 2) / a) : fov / 2;
+    const hHalf = a >= 1 ? fov / 2 : Math.atan(Math.tan(fov / 2) * a);
+    return Math.max(nsHalf / Math.tan(vHalf), ewHalf / Math.tan(hHalf)) * 1.32;
+  }
+  const canvas = viewer.canvas;
   const views = {
     plane: { yaw: 0, pitch: CONFIG.chasePitchDeg, range: CONFIG.chaseRangeM, min: 150, max: 9000 },
-    route: { yaw: -15, pitch: -40, range: routeSphere.radius * 2.2, min: 2500, max: 150000 }
+    route: { yaw: 0, pitch: TOP_PITCH, range: fitRange(), min: 2500, max: 200000 }
   };
   let mode = 'route', smTrack = trackAt(15, 15), tween = null;
 
@@ -373,7 +397,7 @@ async function start() {
     const v = views[m];
     return m === 'plane'
       ? { target: planeCart, heading: smTrack + v.yaw, pitch: v.pitch, range: v.range }
-      : { target: routeSphere.center, heading: v.yaw, pitch: v.pitch, range: v.range };
+      : { target: routeCenter, heading: v.yaw, pitch: v.pitch, range: v.range };
   }
   function currentPose() {
     const to = viewPose(mode);
@@ -395,14 +419,18 @@ async function start() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     tween = animate && !reduce ? { from, t0: performance.now(), dur: 1600 } : null;
   }
+  let fitted = true, lastW = canvas.clientWidth, lastH = canvas.clientHeight;
   scene.preRender.addEventListener(() => {
+    if (fitted && mode === 'route' && (canvas.clientWidth !== lastW || canvas.clientHeight !== lastH)) {
+      lastW = canvas.clientWidth; lastH = canvas.clientHeight; views.route.range = fitRange();
+    }
     const p = currentPose();
     camera.lookAtTransform(C.Transforms.eastNorthUpToFixedFrame(p.target),
       new C.HeadingPitchRange(rad(p.heading), rad(p.pitch), p.range));
   });
 
   /* ---------- touch / mouse: one finger turns and tilts, two fingers zoom ---------- */
-  const canvas = viewer.canvas, pts = new Map();
+  const pts = new Map();
   let pinch0 = 0;
   const hideHint = () => $('hint').classList.add('gone');
   setTimeout(hideHint, 6000);
@@ -411,7 +439,7 @@ async function start() {
     v.pitch = p.pitch; v.range = p.range; v.yaw = mode === 'plane' ? angDiff(smTrack, p.heading) : p.heading; } };
 
   canvas.addEventListener('pointerdown', e => {
-    hideHint(); settleTween();
+    hideHint(); settleTween(); fitted = false;
     canvas.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pts.size === 2) pinch0 = pinchDist();
@@ -424,7 +452,7 @@ async function start() {
     const v = views[mode];
     if (pts.size === 1) {
       v.yaw -= dx * 0.3;
-      v.pitch = clamp(v.pitch - dy * 0.25, -89, -3);
+      v.pitch = clamp(v.pitch - dy * 0.25, TOP_PITCH, -3);
     } else if (pts.size === 2) {
       const d = pinchDist();
       if (pinch0 > 0 && d > 0) v.range = clamp(v.range * (pinch0 / d), v.min, v.max);
@@ -445,7 +473,7 @@ async function start() {
       toastTimer = setTimeout(() => $('toast').classList.remove('on'), 1400);
       return;
     }
-    e.preventDefault(); hideHint(); settleTween();
+    e.preventDefault(); hideHint(); settleTween(); fitted = false;
     const v = views[mode];
     v.range = clamp(v.range * Math.exp(e.deltaY * 0.004), v.min, v.max);
   }, { passive: false });
@@ -474,6 +502,7 @@ async function start() {
     requestAnimationFrame(loop);
   }
   function play() {
+    leaveIntro();
     if (t >= TOTAL_T) { t = 0; updatePlane(); smTrack = trackAt(15, 15); }
     if (mode !== 'plane') { smTrack = trackAt(Math.min(t + 15, TOTAL_T), 15); setMode('plane', true); }
     setPlaying(true);
@@ -486,7 +515,14 @@ async function start() {
   $('mpause').addEventListener('click', pause);
   $('expand').addEventListener('click', () => root.classList.remove('min'));
   $('collapse').addEventListener('click', () => root.classList.add('min'));
-  $('overview').addEventListener('click', () => { pause(); setMode('route', true); });
+  function overview() {
+    pause();
+    const from = currentPose();
+    Object.assign(views.route, { yaw: 0, pitch: TOP_PITCH, range: fitRange() });
+    fitted = true; mode = 'route';
+    tween = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : { from, t0: performance.now(), dur: 1600 };
+  }
+  $('overview').addEventListener('click', overview);
   $('scrub').addEventListener('input', e => {
     t = Number(e.target.value);
     updatePlane();
