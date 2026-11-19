@@ -14,14 +14,14 @@
 #redtail-route #rt-map{position:absolute;inset:0}
 #redtail-route #rt-map canvas{touch-action:none;cursor:grab}
 #redtail-route #rt-map canvas:active{cursor:grabbing}
-#redtail-route .cesium-viewer-bottom{top:8px;bottom:auto;left:8px;right:auto;padding:0;max-width:calc(100% - 16px)}
-#redtail-route .cesium-widget-credits{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font:500 10px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.9)}
-#redtail-route .cesium-credit-logoContainer{display:inline-flex;align-items:center;margin:0;padding:0}
-#redtail-route .cesium-credit-logoContainer a[href*="cesium.com"]{display:none!important}
-#redtail-route .cesium-credit-logoContainer img{height:16px!important;width:auto!important}
-#redtail-route .cesium-credit-expand-link{display:none!important}
-#redtail-route .cesium-credit-textContainer{display:none;flex-basis:100%;max-width:340px;padding:6px 9px;border-radius:8px;background:rgba(24,19,16,.82)}
-#redtail-route.show-credits .cesium-credit-textContainer{display:block}
+#redtail-route .cesium-viewer-bottom{position:absolute!important;top:8px!important;bottom:auto!important;left:8px!important;right:auto!important;width:auto!important;height:auto!important;max-width:calc(100% - 16px);margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
+#redtail-route .cesium-viewer-bottom>*{pointer-events:auto}
+#redtail-route .cesium-widget-credits{display:block;font:500 10px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.92)}
+#redtail-route .cesium-credit-logoContainer,#redtail-route .cesium-credit-expand-link{display:none!important}
+#redtail-route .cesium-credit-textContainer{display:block!important;max-width:340px;padding:0;border-radius:8px;background:none}
+#redtail-route .cesium-credit-textContainer img{height:16px!important;width:auto!important;vertical-align:middle;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+#redtail-route:not(.show-credits) .cesium-credit-textContainer>.cesium-credit-delimiter,#redtail-route:not(.show-credits) .cesium-credit-textContainer>.cesium-credit-wrapper:not(:has(img)){display:none!important}
+#redtail-route.show-credits .cesium-credit-textContainer{padding:6px 9px;background:rgba(24,19,16,.82)}
 #redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
 #redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
 #redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:2px;align-items:center;padding:12px 14px 10px 12px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:transform .45s var(--ease),opacity .3s ease}
