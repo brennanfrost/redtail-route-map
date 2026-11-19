@@ -387,8 +387,8 @@ async function start() {
     planeRoll = rad(clamp(turn * 6, -25, 25));
     const { i, f } = legAt(t);
     const d = (cumNm[i] + legNm[i] * f) * MI, pct = (t / TOTAL_T * 100).toFixed(2) + '%';
-    $('dist').textContent = d.toFixed(1);
-    $('mdist').textContent = d.toFixed(0);
+    $('dist').textContent = Math.round(d);
+    $('mdist').textContent = Math.round(d);
     $('scrub').value = t;
     $('scrub').style.setProperty('--p', pct);
     $('mbar').style.width = pct;
