@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kodiak 100 model preview – Redtail Air</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Widgets/widgets.css">
+<style>
+html,body,#v{margin:0;width:100%;height:100%;background:#f3eee7;font-family:system-ui,sans-serif}
+.cesium-viewer-bottom{display:none}
+#bar{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px}
+#bar button{font:600 13px system-ui;text-transform:uppercase;padding:8px 14px;border:1px solid #000;border-radius:10px;background:#f3eee7;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="v"></div>
+<div id="bar">
+  <button data-h="200" data-p="-12">Right side</button>
+  <button data-h="20" data-p="-12">Left side</button>
+  <button data-h="135" data-p="-30">Front ¾</button>
+  <button data-h="90" data-p="-89">Top</button>
+  <button id="spin">Spin</button>
+</div>
+<script>window.CESIUM_BASE_URL='https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/';</script>
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
+<script>
+/* Model only: no Google map tiles are requested on this page. */
+const C = Cesium;
+const viewer = new C.Viewer('v', { globe: false, baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false,
+  sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+  infoBox: false, selectionIndicator: false });
+viewer.scene.skyBox.show = false; viewer.scene.sun.show = false; viewer.scene.moon.show = false;
+viewer.scene.skyAtmosphere.show = false;
+viewer.scene.backgroundColor = C.Color.fromCssColorString('#f3eee7');
+const pos = C.Cartesian3.fromDegrees(-109.75484, 38.75496, 2000);
+viewer.entities.add({ position: pos,
+  orientation: C.Transforms.headingPitchRollQuaternion(pos, new C.HeadingPitchRoll(0, 0, 0)),
+  model: { uri: 'kodiak.glb', scale: 1 } });
+let h = 200, p = -12, spin = false;
+const look = () => viewer.camera.lookAt(pos, new C.HeadingPitchRange(C.Math.toRadians(h), C.Math.toRadians(p), 22));
+look();
+viewer.clock.onTick.addEventListener(() => { if (spin) { h = (h + 0.4) % 360; look(); } });
+document.querySelectorAll('#bar button[data-h]').forEach(b => b.onclick = () => { spin = false; h = +b.dataset.h; p = +b.dataset.p; look(); });
+document.getElementById('spin').onclick = () => { spin = !spin; };
+</script>
+</body>
+</html>
