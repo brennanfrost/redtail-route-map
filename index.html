@@ -126,8 +126,8 @@ const CONFIG = {
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
   subtitle: '',
-  modelUrl: 'kodiak.glb?v=9',   // Kodiak 100 in N959WB livery
-  planeScale: 4,            // enlarged so the plane reads from the chase camera
+  modelUrl: 'kodiak.glb?v=10',   // Kodiak 100 in N959WB livery
+  planeScale: 7,            // enlarged so the plane reads from the chase camera
   homeLabel: 'Canyonlands Field (KCNY)',
   defaultSpeed: 20,
   fieldElevationFt: 4557,   // KCNY
@@ -193,9 +193,35 @@ function legAt(t) {
   while (i < SEC.length - 1 && t >= cumT[i+1]) i++;
   return { i, f: clamp((t - cumT[i]) / SEC[i], 0, 1) };
 }
-function lngLatAt(t) {
+function rawLngLatAt(t) {
   const { i, f } = legAt(t);
   return [W[i][0] + (W[i+1][0]-W[i][0])*f, W[i][1] + (W[i+1][1]-W[i][1])*f];
+}
+/* Smooth the turns: sample the straight-leg path once a second, round the corners with a
+   few passes of a moving average, and keep the start and end pinned to the airport. */
+const SM = (() => {
+  const n = Math.ceil(TOTAL_T) + 1, raw = [];
+  for (let s = 0; s < n; s++) raw.push(rawLngLatAt(Math.min(s, TOTAL_T)));
+  let a = raw;
+  const R = 14;
+  for (let pass = 0; pass < 3; pass++) {
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) {
+      let x = 0, y = 0;
+      for (let j = i - R; j <= i + R; j++) { const p = a[clamp(j, 0, n - 1)]; x += p[0]; y += p[1]; }
+      out[i] = [x / (2 * R + 1), y / (2 * R + 1)];
+    }
+    a = out;
+  }
+  return a.map((p, i) => {
+    const b = clamp(Math.min(i, n - 1 - i) / 60, 0, 1), k = b * b * (3 - 2 * b);
+    return [raw[i][0] + (p[0] - raw[i][0]) * k, raw[i][1] + (p[1] - raw[i][1]) * k];
+  });
+})();
+function lngLatAt(t) {
+  t = clamp(t, 0, TOTAL_T);
+  const i = Math.min(Math.floor(t), SM.length - 2), f = t - i;
+  return [SM[i][0] + (SM[i+1][0] - SM[i][0]) * f, SM[i][1] + (SM[i+1][1] - SM[i][1]) * f];
 }
 function trackAt(t, span) {
   const a = lngLatAt(Math.max(0, t - span)), b = lngLatAt(Math.min(TOTAL_T, t + span));
