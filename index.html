@@ -203,8 +203,8 @@ const SM = (() => {
   const n = Math.ceil(TOTAL_T) + 1, raw = [];
   for (let s = 0; s < n; s++) raw.push(rawLngLatAt(Math.min(s, TOTAL_T)));
   let a = raw;
-  const R = 14;
-  for (let pass = 0; pass < 3; pass++) {
+  const R = 24;
+  for (let pass = 0; pass < 4; pass++) {
     const out = new Array(n);
     for (let i = 0; i < n; i++) {
       let x = 0, y = 0;
@@ -214,7 +214,7 @@ const SM = (() => {
     a = out;
   }
   return a.map((p, i) => {
-    const b = clamp(Math.min(i, n - 1 - i) / 60, 0, 1), k = b * b * (3 - 2 * b);
+    const b = clamp(Math.min(i, n - 1 - i) / 90, 0, 1), k = b * b * (3 - 2 * b);
     return [raw[i][0] + (p[0] - raw[i][0]) * k, raw[i][1] + (p[1] - raw[i][1]) * k];
   });
 })();
