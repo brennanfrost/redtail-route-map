@@ -126,7 +126,7 @@ const CONFIG = {
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
   subtitle: '',
-  modelUrl: 'kodiak.glb?v=10',   // Kodiak 100 in N959WB livery
+  modelUrl: 'kodiak.glb?v=11',   // Kodiak 100 in N959WB livery
   planeScale: 7,            // enlarged so the plane reads from the chase camera
   homeLabel: 'Canyonlands Field (KCNY)',
   defaultSpeed: 20,
@@ -376,7 +376,17 @@ async function start() {
   viewer.entities.add({
     position: new PosProp(() => planeCart, false),
     orientation: orient,
-    model: { uri: CONFIG.modelUrl, scale: CONFIG.planeScale, minimumPixelSize: 48, runAnimations: false }
+    model: { uri: CONFIG.modelUrl, scale: CONFIG.planeScale, minimumPixelSize: 48, runAnimations: false,
+      nodeTransformations: { Propeller: new C.CallbackProperty(() => propTRS, false) } }
+  });
+  /* Propeller spins while flying (the hub node rotates about the shaft, which is the model's forward axis) */
+  const propTRS = new C.TranslationRotationScale();
+  let propAngle = 0, propSpeed = 0, propLast = performance.now();
+  scene.preRender.addEventListener(() => {
+    const now = performance.now(), dt = Math.min((now - propLast) / 1000, 0.1); propLast = now;
+    propSpeed += ((playing ? 1 : 0) - propSpeed) * (1 - Math.exp(-dt * 2.5));   // spool up and down
+    propAngle = (propAngle + dt * propSpeed * 2 * Math.PI * 3.3) % (2 * Math.PI);
+    propTRS.rotation = C.Quaternion.fromAxisAngle(C.Cartesian3.UNIT_Z, propAngle, propTRS.rotation);
   });
 
   function updatePlane() {
@@ -384,7 +394,7 @@ async function start() {
     planeEnu = C.Transforms.eastNorthUpToFixedFrame(planeCart);
     planeTrack = trackAt(t, 4);
     const turn = angDiff(trackAt(Math.max(0, t - 8), 4), trackAt(Math.min(TOTAL_T, t + 8), 4)) / 16;   // deg per second
-    planeRoll = rad(clamp(turn * 6, -25, 25));
+    planeRoll = rad(clamp(turn * 11, -40, 40));
     const { i, f } = legAt(t);
     const d = (cumNm[i] + legNm[i] * f) * MI, pct = (t / TOTAL_T * 100).toFixed(2) + '%';
     $('dist').textContent = Math.round(d);
