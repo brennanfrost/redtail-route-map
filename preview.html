@@ -15,9 +15,9 @@ html,body,#v{margin:0;width:100%;height:100%;background:#f3eee7;font-family:syst
 <body>
 <div id="v"></div>
 <div id="bar">
-  <button data-h="0" data-p="-6">Right side</button>
-  <button data-h="180" data-p="-6">Left side</button>
-  <button data-h="135" data-p="-30">Front ¾</button>
+  <button data-h="270" data-p="-6">Right side</button>
+  <button data-h="90" data-p="-6">Left side</button>
+  <button data-h="225" data-p="-22">Front ¾</button>
   <button data-h="90" data-p="-89">Top</button>
   <button id="spin">Spin</button>
 </div>
@@ -36,7 +36,7 @@ const pos = C.Cartesian3.fromDegrees(-109.75484, 38.75496, 2000);
 viewer.entities.add({ position: pos,
   orientation: C.Transforms.headingPitchRollQuaternion(pos, new C.HeadingPitchRoll(0, 0, 0)),
   model: { uri: 'kodiak.glb', scale: 1 } });
-let h = 330, p = -10, spin = false;
+let h = 235, p = -12, spin = false;
 const look = () => viewer.camera.lookAt(pos, new C.HeadingPitchRange(C.Math.toRadians(h), C.Math.toRadians(p), 22));
 look();
 viewer.clock.onTick.addEventListener(() => { if (spin) { h = (h + 0.4) % 360; look(); } });
