@@ -35,7 +35,7 @@ viewer.scene.backgroundColor = C.Color.fromCssColorString('#f3eee7');
 const pos = C.Cartesian3.fromDegrees(-109.75484, 38.75496, 2000);
 viewer.entities.add({ position: pos,
   orientation: C.Transforms.headingPitchRollQuaternion(pos, new C.HeadingPitchRoll(0, 0, 0)),
-  model: { uri: 'kodiak.glb?v=6', scale: 1 } });
+  model: { uri: 'kodiak.glb?v=7', scale: 1 } });
 let h = 235, p = -12, spin = false;
 const look = () => viewer.camera.lookAt(pos, new C.HeadingPitchRange(C.Math.toRadians(h), C.Math.toRadians(p), 22));
 look();
