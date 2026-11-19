@@ -96,7 +96,7 @@
     <label class="sr" for="rt-scrub">Position along the route</label>
     <input type="range" id="rt-scrub" min="0" step="1" value="0">
     <div class="row">
-      <span class="dist"><b id="rt-dist">0</b> of <span id="rt-distTotal">0</span> nm</span>
+      <span class="dist"><b id="rt-dist">0</b> of <span id="rt-distTotal">0</span> miles</span>
       <label class="sr" for="rt-speed">Playback speed</label>
       <select id="rt-speed">
         <option value="10">10×</option>
@@ -113,7 +113,7 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg>
     </button>
     <div class="mbar"><i id="rt-mbar"></i></div>
-    <span class="mdist"><span id="rt-mdist">0</span> nm</span>
+    <span class="mdist"><span id="rt-mdist">0</span> mi</span>
     <button class="mbtn mexpand" id="rt-expand" aria-label="Show controls">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l4-4 4 4"/></svg>
     </button>
@@ -125,7 +125,9 @@
 const CONFIG = {
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
-  subtitle: 'Round trip from Canyonlands Field, Moab',
+  subtitle: '',
+  modelUrl: 'kodiak.glb',   // Kodiak 100 in N959WB livery
+  planeScale: 4,            // enlarged so the plane reads from the chase camera
   homeLabel: 'Canyonlands Field (KCNY)',
   defaultSpeed: 20,
   fieldElevationFt: 4557,   // KCNY
@@ -210,7 +212,9 @@ function altM(t) {
 /* ---------- UI text ---------- */
 $('title').textContent = CONFIG.title;
 $('subtitle').textContent = CONFIG.subtitle;
-$('distTotal').textContent = Math.round(TOTAL_NM);
+$('subtitle').hidden = !CONFIG.subtitle;
+const MI = 1.150779;   // statute miles per nautical mile
+$('distTotal').textContent = Math.round(TOTAL_NM * MI);
 $('scrub').max = TOTAL_T;
 $('speed').value = String(CONFIG.defaultSpeed);
 const coarse = matchMedia('(pointer: coarse)').matches;
@@ -339,32 +343,24 @@ async function start() {
 
   /* ---------- the plane (scaled up so it reads from a distance) ---------- */
   let planeTrack = trackAt(0, 30), planeCart = cartAt(0), planeEnu = C.Transforms.eastNorthUpToFixedFrame(planeCart);
-  const PARTS = [
-    { off: [0, 0, 0],     dim: [48, 7, 7],   color: C.Color.WHITE },
-    { off: [6, 0, 3.5],   dim: [9, 64, 1.6], color: C.Color.WHITE },
-    { off: [-21, 0, 1],   dim: [6, 22, 1.4], color: BRAND },
-    { off: [-21, 0, 6.5], dim: [8, 1.6, 11], color: BRAND }
-  ];
-  function partWorld(off) {
-    const T = rad(planeTrack), s = Math.sin(T), c = Math.cos(T);
-    const e = off[0] * s + off[1] * c, n = off[0] * c - off[1] * s;
-    return C.Matrix4.multiplyByPoint(planeEnu, new C.Cartesian3(e, n, off[2]), new C.Cartesian3());
-  }
+  let planeRoll = 0;
   const orient = new C.CallbackProperty(() =>
-    C.Transforms.headingPitchRollQuaternion(planeCart, new C.HeadingPitchRoll(rad(planeTrack) - Math.PI / 2, 0, 0)), false);
+    C.Transforms.headingPitchRollQuaternion(planeCart, new C.HeadingPitchRoll(rad(planeTrack) - Math.PI / 2, 0, planeRoll)), false);
   const PosProp = C.CallbackPositionProperty || C.CallbackProperty;
-  PARTS.forEach(p => viewer.entities.add({
-    position: new PosProp(() => partWorld(p.off), false),
+  viewer.entities.add({
+    position: new PosProp(() => planeCart, false),
     orientation: orient,
-    box: { dimensions: new C.Cartesian3(p.dim[0], p.dim[1], p.dim[2]), material: p.color }
-  }));
+    model: { uri: CONFIG.modelUrl, scale: CONFIG.planeScale, minimumPixelSize: 48, runAnimations: false }
+  });
 
   function updatePlane() {
     planeCart = cartAt(t);
     planeEnu = C.Transforms.eastNorthUpToFixedFrame(planeCart);
     planeTrack = trackAt(t, 4);
+    const turn = angDiff(trackAt(Math.max(0, t - 8), 4), trackAt(Math.min(TOTAL_T, t + 8), 4)) / 16;   // deg per second
+    planeRoll = rad(clamp(turn * 6, -25, 25));
     const { i, f } = legAt(t);
-    const d = cumNm[i] + legNm[i] * f, pct = (t / TOTAL_T * 100).toFixed(2) + '%';
+    const d = (cumNm[i] + legNm[i] * f) * MI, pct = (t / TOTAL_T * 100).toFixed(2) + '%';
     $('dist').textContent = d.toFixed(1);
     $('mdist').textContent = d.toFixed(0);
     $('scrub').value = t;
@@ -451,8 +447,8 @@ async function start() {
     p.x = e.clientX; p.y = e.clientY;
     const v = views[mode];
     if (pts.size === 1) {
-      v.yaw -= dx * 0.3;
-      v.pitch = clamp(v.pitch - dy * 0.25, TOP_PITCH, -3);
+      v.yaw += dx * 0.3;
+      v.pitch = clamp(v.pitch + dy * 0.25, TOP_PITCH, -3);
     } else if (pts.size === 2) {
       const d = pinchDist();
       if (pinch0 > 0 && d > 0) v.range = clamp(v.range * (pinch0 / d), v.min, v.max);
