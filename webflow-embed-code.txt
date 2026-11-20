@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
-#redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:440px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:440px;overflow:hidden;overflow:clip;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #redtail-route *{box-sizing:border-box}
 #redtail-route #rt-map{position:absolute;inset:0;touch-action:none}
 #redtail-route #rt-map canvas{touch-action:none;cursor:grab}
@@ -16,10 +16,6 @@
 #redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
 #redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
 
-#redtail-route .now{position:absolute;left:50%;top:40px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:8px 16px 9px;border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--rim);text-align:center;pointer-events:none;transition:opacity .35s ease,transform .35s var(--ease)}
-#redtail-route .now.off{opacity:0;transform:translate(-50%,-8px)}
-#redtail-route .now small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.04em}
-#redtail-route .now b{display:block;font-size:1.35rem;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 #redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;padding:12px 12px 10px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:transform .45s var(--ease),opacity .3s ease}
 #redtail-route.min .panel{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
@@ -72,15 +68,36 @@
 #redtail-route .chips{margin:12px -16px 0;padding:2px 16px 4px}
 #redtail-route .play{width:60px;height:60px}
 #redtail-route .rt-h{font-size:1.4rem}
-#redtail-route .now b{font-size:1.6rem}
 #redtail-route .mini{bottom:16px}
 }
-@media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint,#redtail-route .now{transition:none}}
+@media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint,
+#redtail-route .sheet{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:560px;max-height:62%;display:flex;flex-direction:column;background:rgba(24,19,16,.9);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 14px 36px rgba(0,0,0,.45);z-index:6;transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .4s var(--ease),opacity .25s ease}
+#redtail-route.info .sheet{transform:none;opacity:1;pointer-events:auto}
+#redtail-route .sheet-head{display:flex;align-items:flex-start;gap:10px;padding:14px 14px 8px 16px}
+#redtail-route .sheet-head>div{flex:1;min-width:0}
+#redtail-route .sheet-head small{display:block;font-size:.82rem;font-weight:600;color:var(--muted)}
+#redtail-route .sheet-head h2{margin:2px 0 0;font:700 1.4rem/1.1 var(--font);color:#fff}
+#redtail-route .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:0 16px 4px;font:500 1rem/1.45 var(--font);color:rgba(255,255,255,.92);-webkit-user-select:text;user-select:text}
+#redtail-route .sheet-body p{margin:0 0 10px}
+#redtail-route .sheet-body ul{margin:0 0 6px;padding:0 0 0 18px}
+#redtail-route .sheet-body li{margin:0 0 7px}
+#redtail-route .sheet-body li::marker{color:var(--red-hi)}
+#redtail-route .sheet-foot{display:flex;gap:8px;padding:8px 14px 14px}
+#redtail-route .btn{font:700 1rem var(--font);color:#fff;background:var(--red);border:0;border-radius:12px;min-height:42px;padding:0 16px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .btn:hover{background:var(--red-hi)}
+#redtail-route .btn.alt{background:rgba(255,255,255,.12);border:1px solid var(--rim)}
+#redtail-route .intro{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:20px;background:rgba(20,15,12,.45);transition:opacity .35s ease}
+#redtail-route .intro.gone{opacity:0;pointer-events:none}
+#redtail-route .intro-card{width:min(100%,400px);padding:20px 20px 18px;background:rgba(24,19,16,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--rim);border-radius:22px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+#redtail-route .intro-card h2{margin:0 0 4px;font:700 1.55rem/1.1 var(--font)}
+#redtail-route .intro-card>p{margin:0 0 14px;color:var(--muted);font-size:1rem;font-weight:500}
+#redtail-route .intro-card ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:10px}
+#redtail-route .intro-card li{display:flex;gap:12px;align-items:center;font-size:1rem;font-weight:500;line-height:1.3}
+#redtail-route .intro-card li span{flex-shrink:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);font-size:1rem}
+#redtail-route .intro-card .btn{width:100%}
 </style>
 <div id="redtail-route">
   <div id="rt-map"></div>
-  <div class="now off" id="rt-now" aria-live="polite"><small id="rt-nowNum"></small><b id="rt-nowName"></b></div>
-  <div class="hint" id="rt-hint"></div>
   <div class="toast" id="rt-toast"></div>
 
   <div class="panel" id="rt-panel">
@@ -104,6 +121,9 @@
       <button class="icon" id="rt-next" aria-label="Next stop">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
       </button>
+      <button class="icon" id="rt-info" aria-label="About this landmark">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1"/></svg>
+      </button>
       <span class="spacer"></span>
       <label class="sr" for="rt-speed">Tour speed</label>
       <select id="rt-speed">
@@ -121,6 +141,9 @@
     </button>
     <svg class="mring" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3"/><circle id="rt-ring" cx="11" cy="11" r="9" fill="none" stroke="#e8453c" stroke-width="3" stroke-linecap="round" stroke-dasharray="56.55" stroke-dashoffset="56.55"/></svg>
     <div class="mtext"><small id="rt-mnum"></small><b id="rt-mname"></b></div>
+    <button class="icon" id="rt-minfo" aria-label="About this landmark">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1"/></svg>
+    </button>
     <button class="icon" id="rt-mnext" aria-label="Next stop">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
     </button>
@@ -128,40 +151,126 @@
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l4-4 4 4"/></svg>
     </button>
   </div>
+
+  <div class="sheet" id="rt-sheet" role="dialog" aria-labelledby="rt-sheetTitle">
+    <div class="sheet-head">
+      <div><small id="rt-sheetNum"></small><h2 id="rt-sheetTitle"></h2></div>
+      <button class="icon" id="rt-sheetClose" aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="rt-sheetBody"></div>
+    <div class="sheet-foot">
+      <button class="btn" id="rt-sheetFly">Fly here</button>
+    </div>
+  </div>
+
+  <div class="intro" id="rt-intro">
+    <div class="intro-card" role="dialog" aria-labelledby="rt-introTitle">
+      <h2 id="rt-introTitle"></h2>
+      <p>See the landmarks of our flight in 3D.</p>
+      <ul id="rt-introList"></ul>
+      <button class="btn" id="rt-introGo">Start exploring</button>
+    </div>
+  </div>
 </div>
 <script>
 (function () {
 /* ================= SETTINGS ================= */
 const CONFIG = {
-  invertDrag: false,     // false: the landscape follows your finger. true: flips both directions
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
-  subtitle: 'Fly to each landmark on the tour',
+  subtitle: 'Tap a landmark to learn about it, or press play',
   orbitSeconds: 24,      // one full 360° circle at Normal speed
   orbitPitchDeg: -32,    // camera tilt while circling (negative = looking down)
+  invertDrag: false,     // false: the landscape follows your finger. true: flips both directions
   home: { name: 'Canyonlands Field (KCNY)', lat: 38.757631, lon: -109.753463 }
 };
 
 /* Tour stops, in order, from the Garmin flight plan (KCNY to KCNY).
    range = how far the camera circles from the landmark, in meters. */
 const STOPS = [
-  { name: 'Jewel Tibbetts Arch',        lat: 38.62825788612484, lon: -109.8638645570713, range: 2600 },
-  { name: 'Hell Roaring Canyon',        lat: 38.61629,          lon: -109.89132,         range: 5500 },
-  { name: 'Mineral Canyon',             lat: 38.54319,          lon: -109.92719,         range: 5500 },
-  { name: 'Upheaval Dome',              lat: 38.43872,          lon: -109.92841,         range: 7500 },
-  { name: 'Grand View Point',           lat: 38.30678412821815, lon: -109.8560061207679, range: 6000 },
-  { name: 'The Chocolate Drops',        lat: 38.2223,           lon: -109.99624,         range: 3000 },
-  { name: 'Chimney Rock',               lat: 38.1564200027701,  lon: -110.0233568893105, range: 3000 },
-  { name: 'The Confluence',             lat: 38.18858,          lon: -109.87961,         range: 7000 },
-  { name: 'Druid Arch',                 lat: 38.08876,          lon: -109.83244,         range: 2400 },
-  { name: 'Kirk Arch',                  lat: 37.99144,          lon: -109.76037,         range: 2400 },
-  { name: 'Elephant Trunk Arch',        lat: 38.00256,          lon: -109.75975,         range: 2400 },
-  { name: 'Angel Arch',                 lat: 38.0517,           lon: -109.75627,         range: 2400 },
-  { name: 'Castle Arch',                lat: 38.065,            lon: -109.74051,         range: 2400 },
-  { name: 'The Loop',                   lat: 38.23929,          lon: -109.8164,          range: 7500 },
-  { name: 'Dead Horse Point State Park',lat: 38.47078,          lon: -109.74045,         range: 6500 },
-  { name: 'Potash Ponds',               lat: 38.48727339598815, lon: -109.6837016489806, range: 7500 },
-  { name: 'Corona Arch',                lat: 38.58398781784155, lon: -109.6289062332708, range: 2400 }
+  { name: 'Jewel Tibbetts Arch', lat: 38.62825788612484, lon: -109.8638645570713, range: 2600,
+    about: 'A graceful sandstone arch tucked into the head of Hell Roaring Canyon, a short drive off the road to Dead Horse Point.',
+    facts: ['Named for Jewel Tibbetts (1903–1969), who lived at the nearby Horsethief Ranch with her husband Bill in the 1950s and ’60s.',
+            'The Tibbetts family often brought ranch guests out to see the arch.',
+            'It sits on BLM land and is reached by a short, lightly traveled trail, so relatively few visitors see it.'] },
+  { name: 'Hell Roaring Canyon', lat: 38.61629, lon: -109.89132, range: 5500,
+    about: 'A deep side canyon that winds west to the Green River, just north of Canyonlands National Park.',
+    facts: ['Near its mouth, fur trapper Denis Julien carved his name and the date, 3 May 1836, into the rock.',
+            'Beside his name he etched a small boat that appears to have a mast, a clue to how he traveled the rivers.',
+            'The inscription is listed on the National Register of Historic Places.'] },
+  { name: 'Mineral Canyon', lat: 38.54319, lon: -109.92719, range: 5500,
+    about: 'A canyon that drops from the Island in the Sky mesa down to Mineral Bottom on the Green River.',
+    facts: ['Mineral Bottom is the take-out for float trips through Labyrinth Canyon, usually 3–4 days from the town of Green River.',
+            'Uranium was mined in the canyon in the 1950s.',
+            'A small sandy airstrip sits beside the river at Mineral Bottom and is occasionally used by backcountry pilots.'] },
+  { name: 'Upheaval Dome', lat: 38.43872, lon: -109.92841, range: 7500,
+    about: 'A bull’s-eye of tilted, colorful rock layers in the Island in the Sky district, unlike anything else in Canyonlands.',
+    facts: ['For decades geologists debated whether a rising salt dome or a meteorite impact created it.',
+            'In 2007, researchers reported “shocked” quartz grains, a signature of high-pressure impacts, strengthening the meteorite theory.',
+            'Erosion has stripped away the rock above, exposing layers that were once buried thousands of feet deep.'] },
+  { name: 'Grand View Point', lat: 38.30678412821815, lon: -109.8560061207679, range: 6000,
+    about: 'The southern tip of the Island in the Sky mesa, at 6,080 feet, with one of the broadest views in the Southwest.',
+    facts: ['The White Rim, a bench of pale sandstone formed from ancient coastal sand dunes, lies about 1,300 feet below.',
+            'The spires and columns of Monument Basin sit just to the east.',
+            'The name recalls the Grand River, as the Colorado above its junction with the Green was called until 1921.'] },
+  { name: 'The Chocolate Drops', lat: 38.2223, lon: -109.99624, range: 3000,
+    about: 'A row of dark, chocolate-brown sandstone towers on the rim above the Maze District.',
+    facts: ['The Maze is the most remote district of Canyonlands; reaching it by road takes a high-clearance four-wheel-drive vehicle.',
+            'The Drops stand near the Maze Overlook and can be seen from the canyon floor near the Harvest Scene pictographs.'] },
+  { name: 'Chimney Rock', lat: 38.1564200027701, lon: -110.0233568893105, range: 3000,
+    about: 'A rock spire in the Maze District, rising to about 5,563 feet.',
+    facts: ['It marks the trailhead for an 8.7-mile loop to the Harvest Scene, one of the region’s best-known pictograph panels.',
+            'From here, routes drop into the tangle of canyons that gives the Maze its name.'] },
+  { name: 'The Confluence', lat: 38.18858, lon: -109.87961, range: 7000,
+    about: 'Where the Green River and the Colorado River meet, deep in the heart of Canyonlands.',
+    facts: ['The junction lies about 1,000 feet below the Confluence Overlook in the Needles District.',
+            'Just downstream, the combined rivers enter Cataract Canyon: 14 miles of whitewater, with waves that can top 20 feet at peak flows.',
+            'No road reaches the river here. Visitors arrive by boat, on foot, or from the air.'] },
+  { name: 'Druid Arch', lat: 38.08876, lon: -109.83244, range: 2400,
+    about: 'A towering, slab-like arch at the head of Elephant Canyon in the Needles District.',
+    facts: ['It was carved from a massive fin of Cedar Mesa Sandstone.',
+            'About 85 feet tall, its blocky stones are often compared to the standing stones of Stonehenge.',
+            'Hikers reach it on a trail of about 5.4 miles each way from Elephant Hill.'] },
+  { name: 'Kirk Arch', lat: 37.99144, lon: -109.76037, range: 2400,
+    about: 'One of the largest arches in remote Upper Salt Creek, with a span of about 166 feet.',
+    facts: ['Named for Rensselaer Lee Kirk Sr., who homesteaded below the arch in the late 1800s.',
+            'Rediscovered in 1940, it was called Musselman Arch for years before being renamed for Kirk in 1950.',
+            'The site of Kirk’s old cabin lies about a mile away.'] },
+  { name: 'Elephant Trunk Arch', lat: 38.00256, lon: -109.75975, range: 2400,
+    about: 'A lesser-known arch on the west side of Upper Salt Creek, just north of Kirk Arch.',
+    facts: ['Upper Salt Creek holds a cluster of large arches, including Kirk Arch and Ring Arch.',
+            'Few people ever see it from the ground; this part of Salt Creek is usually reached only on long backpacking trips.'] },
+  { name: 'Angel Arch', lat: 38.0517, lon: -109.75627, range: 2400,
+    about: 'The largest natural arch in Canyonlands National Park, in a side canyon of Salt Creek.',
+    facts: ['Its opening is about 135 feet tall and 120 feet wide.',
+            'The rock beside the opening resembles a winged figure, which gives the arch its name.',
+            'The formation rises about 450 feet above the canyon floor.'] },
+  { name: 'Castle Arch', lat: 38.065, lon: -109.74051, range: 2400,
+    about: 'A large, little-visited arch near the head of Horse Canyon in the Needles District.',
+    facts: ['It spans about 165 feet.',
+            'Horse Canyon is a major tributary of Salt Creek, reached by a permit-only four-wheel-drive road.'] },
+  { name: 'The Loop', lat: 38.23929, lon: -109.8164, range: 7500,
+    about: 'A dramatic double oxbow where the Colorado River nearly circles back on itself.',
+    facts: ['It sits about 5 miles upstream from the Confluence.',
+            'Geologists call it an entrenched meander; its canyon walls rise about 500 feet.',
+            'The full double bend is easiest to appreciate from above.'] },
+  { name: 'Dead Horse Point State Park', lat: 38.47078, lon: -109.74045, range: 6500,
+    about: 'A narrow mesa-top point towering 2,000 feet above a gooseneck bend of the Colorado River.',
+    facts: ['Legend says cowboys corralled wild mustangs on the point, and horses left behind died of thirst within sight of the river below.',
+            'The point joins the mesa by a neck of land only about 30 yards wide.',
+            'The park opened in 1959, covers about 5,300 acres, and is one of the most photographed views in the world.'] },
+  { name: 'Potash Ponds', lat: 38.48727339598815, lon: -109.6837016489806, range: 7500,
+    about: 'Bright blue solar evaporation ponds beside the Colorado River, operated by Intrepid Potash.',
+    facts: ['Colorado River water is pumped more than 3,000 feet underground to dissolve potash, a potassium salt used in fertilizer.',
+            'Blue dye helps the brine soak up sunlight and evaporate faster; the process takes about 300 days.',
+            'The ponds cover about 400 acres and fade from deep blue to white and tan as they dry.'] },
+  { name: 'Corona Arch', lat: 38.58398781784155, lon: -109.6289062332708, range: 2400,
+    about: 'One of the largest arches near Moab, set in a sandstone amphitheater above Bootlegger Canyon.',
+    facts: ['Its opening measures about 140 feet across and 105 feet high.',
+            'Formed in Navajo Sandstone, it was once known as Little Rainbow Bridge.',
+            'It’s reached by a 3-mile round-trip trail off Potash Road (Utah 279).'] }
 ];
 /* ============================================ */
 
@@ -170,7 +279,7 @@ const LIB_SOURCES = [
   'https://cdn.jsdelivr.net/npm/cesium@' + CESIUM_VERSION + '/Build/Cesium/',
   'https://cdnjs.cloudflare.com/ajax/libs/cesium/' + CESIUM_VERSION + '/'
 ];
-const DEFAULT_H = 1550; // starting height guess (m) until the real ground height is measured
+const DEFAULT_H = 1550; // starting height guess (m) until real ground height is measured
 
 const root = document.getElementById('redtail-route');
 const $ = id => document.getElementById('rt-' + id);
@@ -178,6 +287,7 @@ const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const angDiff = (a, b) => ((b - a + 540) % 360) - 180;
 const ease = u => 0.5 - 0.5 * Math.cos(Math.PI * u);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function bearing(a, b) {
   const y = Math.sin(rad(b.lon-a.lon)) * Math.cos(rad(b.lat));
   const x = Math.cos(rad(a.lat))*Math.sin(rad(b.lat)) - Math.sin(rad(a.lat))*Math.cos(rad(b.lat))*Math.cos(rad(b.lon-a.lon));
@@ -190,24 +300,34 @@ function km(a, b) {
 }
 
 /* ---------- static UI ---------- */
+const N = STOPS.length;
+const coarse = matchMedia('(pointer: coarse)').matches;
 $('title').textContent = CONFIG.title;
 $('subtitle').textContent = CONFIG.subtitle;
-const N = STOPS.length;
+$('introTitle').textContent = CONFIG.title;
+const introItems = coarse
+  ? [['✋', 'Drag with one finger to move around'], ['🤏', 'Pinch to zoom in and out'], ['✌️', 'Drag two fingers up or down to tilt'], ['📍', 'Tap any landmark name to learn about it'], ['▶', 'Press play to fly the tour']]
+  : [['🖱', 'Drag to move around'], ['⌃', 'Ctrl (or ⌘) + scroll to zoom, Ctrl + drag to tilt'], ['📍', 'Click any landmark name to learn about it'], ['▶', 'Press play to fly the tour']];
+$('introList').innerHTML = introItems.map(i => '<li><span aria-hidden="true">' + i[0] + '</span>' + esc(i[1]) + '</li>').join('');
+$('introGo').addEventListener('click', () => $('intro').classList.add('gone'));
+
 const chips = STOPS.map((s, i) => {
   const b = document.createElement('button');
   b.className = 'chip'; b.type = 'button'; b.setAttribute('role', 'listitem');
-  b.innerHTML = '<i>' + (i + 1) + '</i>' + s.name;
+  b.innerHTML = '<i>' + (i + 1) + '</i>' + esc(s.name);
   $('chips').appendChild(b);
   return b;
 });
-const coarse = matchMedia('(pointer: coarse)').matches;
-$('hint').textContent = coarse ? 'Touch and drag to look around. Pinch to zoom.' : 'Drag to look around. Ctrl + scroll to zoom.';
+function centerChip(i) {
+  const box = $('chips'), c = chips[i];
+  if (!box || !c) return;
+  box.scrollTo({ left: c.offsetLeft - (box.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' });
+}
 
 function fail(msg) {
   const d = document.createElement('div');
   d.className = 'fallback'; d.innerHTML = msg;
   $('map').appendChild(d);
-  $('hint').classList.add('gone');
 }
 function hasWebGL() {
   try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); }
@@ -250,9 +370,14 @@ async function start() {
     console.error(e);
     return fail('The 3D map couldn’t start: ' + (e && e.message ? e.message : 'unknown error'));
   }
-  const scene = viewer.scene, camera = viewer.camera;
+  const scene = viewer.scene, camera = viewer.camera, canvas = viewer.canvas;
   scene.skyAtmosphere.show = true;
-  scene.screenSpaceCameraController.enableInputs = false;
+  const ctl = scene.screenSpaceCameraController;
+  ctl.minimumZoomDistance = 100;
+  ctl.maximumZoomDistance = 250000;
+  const K = C.KeyboardEventModifier, E = C.CameraEventType;
+  ctl.zoomEventTypes = [E.RIGHT_DRAG, E.PINCH, { eventType: E.WHEEL, modifier: K.CTRL }];
+  ctl.tiltEventTypes = [E.MIDDLE_DRAG, E.PINCH, { eventType: E.LEFT_DRAG, modifier: K.CTRL }, { eventType: E.RIGHT_DRAG, modifier: K.CTRL }];
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -263,9 +388,8 @@ async function start() {
   dataBtn.addEventListener('click', () => dataBtn.setAttribute('aria-expanded', String(root.classList.toggle('show-credits'))));
   viewer.cesiumWidget.creditContainer.appendChild(dataBtn);
 
-  let tiles;
   try {
-    tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
+    const tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
     tiles.maximumScreenSpaceError = 20;
     tiles.cacheBytes = 768 * 1024 * 1024;
     scene.primitives.add(tiles);
@@ -279,10 +403,10 @@ async function start() {
     return fail(KEY_MSG);
   }
 
-  /* ---------- landmark positions (ground height measured from the 3D imagery) ---------- */
-  const pts = STOPS.concat([CONFIG.home]);
+  /* ---------- landmark positions (ground height measured from the 3D imagery, eased in) ---------- */
+  const home = CONFIG.home;
+  const pts = STOPS.concat([home]);
   pts.forEach(p => { p.h = p.hT = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
-  const setH = (p, h) => { if (isFinite(h)) p.hT = h; };
   scene.preUpdate.addEventListener(() => pts.forEach(p => {
     if (Math.abs(p.hT - p.h) < 0.5) return;
     p.h += (p.hT - p.h) * 0.05;
@@ -290,36 +414,40 @@ async function start() {
   }));
   if (scene.sampleHeightMostDetailed) {
     scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)))
-      .then(res => res.forEach((c, i) => c && setH(pts[i], c.height)))
+      .then(res => res.forEach((c, i) => { if (c && isFinite(c.height)) pts[i].hT = c.height; }))
       .catch(e => console.warn('Height sampling failed', e));
   }
 
-  /* ---------- labels ---------- */
-  let current = -1; // -1 = overview
+  /* ---------- labels (tap to learn more) ---------- */
+  let current = -1, selected = 0;
   const RED = C.Color.fromCssColorString('#d42a2f');
-  const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.78)');
+  const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.8)');
   const FONT = '"Barlow Semi Condensed", sans-serif';
-  STOPS.forEach((s, i) => viewer.entities.add({
-    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => s.pos, false),
-    point: {
-      pixelSize: new C.CallbackProperty(() => i === current ? 12 : 8, false),
-      color: new C.CallbackProperty(() => i === current ? RED : C.Color.WHITE, false),
-      outlineColor: new C.CallbackProperty(() => i === current ? C.Color.WHITE : RED, false),
-      outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY
-    },
-    label: {
-      text: s.name,
-      font: new C.CallbackProperty(() => (i === current ? '700 17px ' : '600 13px ') + FONT, false),
-      fillColor: C.Color.WHITE, showBackground: true,
-      backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
-      backgroundPadding: new C.Cartesian2(9, 5),
-      verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
-      disableDepthTestDistance: Number.POSITIVE_INFINITY
-    }
-  }));
-  const home = CONFIG.home;
+  const PosProp = C.CallbackPositionProperty || C.CallbackProperty;
+  const entityStop = new Map();
+  STOPS.forEach((s, i) => {
+    const ent = viewer.entities.add({
+      position: new PosProp(() => s.pos, false),
+      point: {
+        pixelSize: new C.CallbackProperty(() => i === current ? 12 : 9, false),
+        color: new C.CallbackProperty(() => i === current ? RED : C.Color.WHITE, false),
+        outlineColor: new C.CallbackProperty(() => i === current ? C.Color.WHITE : RED, false),
+        outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY
+      },
+      label: {
+        text: s.name,
+        font: new C.CallbackProperty(() => (i === current ? '700 17px ' : '600 14px ') + FONT, false),
+        fillColor: C.Color.WHITE, showBackground: true,
+        backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
+        backgroundPadding: new C.Cartesian2(11, 7),
+        verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY
+      }
+    });
+    entityStop.set(ent, i);
+  });
   viewer.entities.add({
-    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => home.pos, false),
+    position: new PosProp(() => home.pos, false),
     point: { pixelSize: 9, color: C.Color.WHITE, outlineColor: C.Color.fromCssColorString('#3a2a22'), outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
     label: {
       text: '✈ ' + home.name, font: '600 13px ' + FONT, fillColor: C.Color.WHITE, showBackground: true,
@@ -328,34 +456,56 @@ async function start() {
       disableDepthTestDistance: Number.POSITIVE_INFINITY
     }
   });
+  function pickStop(x, y) {
+    const r = canvas.getBoundingClientRect();
+    const picked = scene.pick(new C.Cartesian2(x - r.left, y - r.top));
+    if (picked && picked.id && entityStop.has(picked.id)) showInfo(entityStop.get(picked.id));
+  }
+  viewer.screenSpaceEventHandler.setInputAction(e => {
+    const r = canvas.getBoundingClientRect();
+    pickStop(e.position.x + r.left, e.position.y + r.top);
+  }, C.ScreenSpaceEventType.LEFT_CLICK);
 
   /* ---------- camera ---------- */
-  const center = { lat: 0, lon: 0 };
-  pts.forEach(p => { center.lat += p.lat / pts.length; center.lon += p.lon / pts.length; });
-  let spread = 0; pts.forEach(p => spread = Math.max(spread, km(center, p)));
-  const OVERVIEW = { yaw: -15, pitch: -48, range: spread * 1000 * 2.3 };
+  // phases: 'explore' (free map controls) | 'fly' (to a landmark) | 'orbit' (circling) | 'toTop' (back to overhead)
+  let phase = 'explore', orbitStart = 0, orbitAngle = 0, anim = null, lastPose = null;
+  const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1 };
 
-  const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1, ovYaw: 0, ovPitch: OVERVIEW.pitch, ovZoom: 1 };
-  let phase = 'overview';  // 'overview' | 'fly' | 'orbit'
-  let orbitStart = 0, orbitAngle = 0, flight = null;
-
-  const overviewPose = () => ({
-    target: C.Cartesian3.fromDegrees(center.lon, center.lat, DEFAULT_H),
-    heading: OVERVIEW.yaw + user.ovYaw, pitch: user.ovPitch, range: OVERVIEW.range * user.ovZoom
-  });
+  function poseFromCamera() {
+    const pos = camera.positionWC.clone(), dir = camera.directionWC.clone();
+    let target;
+    try { target = scene.pickPosition(new C.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2)); } catch (e) {}
+    if (!target) {
+      const carto = C.Cartographic.fromCartesian(pos);
+      const R = Math.max((carto.height - DEFAULT_H) / Math.max(Math.sin(-camera.pitch), 0.25), 400);
+      target = C.Cartesian3.add(pos, C.Cartesian3.multiplyByScalar(dir, R, new C.Cartesian3()), new C.Cartesian3());
+    }
+    const inv = C.Matrix4.inverseTransformation(C.Transforms.eastNorthUpToFixedFrame(target), new C.Matrix4());
+    const v = C.Matrix4.multiplyByPoint(inv, pos, new C.Cartesian3());
+    return {
+      target, range: Math.max(C.Cartesian3.magnitude(v), 50),
+      heading: deg(Math.atan2(-v.x, -v.y)), pitch: deg(Math.atan2(-v.z, Math.hypot(v.x, v.y)))
+    };
+  }
+  function topPose() {
+    let w = 180, e = -180, s = 90, n = -90;
+    pts.forEach(p => { w = Math.min(w, p.lon); e = Math.max(e, p.lon); s = Math.min(s, p.lat); n = Math.max(n, p.lat); });
+    const px = (e - w) * 0.12, py = (n - s) * 0.08;
+    const rect = C.Rectangle.fromDegrees(w - px, s - py * 3, e + px, n + py);
+    const dest = camera.getRectangleCameraCoordinates(rect);
+    const c = C.Cartographic.fromCartesian(dest);
+    return {
+      target: C.Cartesian3.fromDegrees(deg(c.longitude), deg(c.latitude), DEFAULT_H),
+      heading: 0, pitch: -89.5, range: Math.max(c.height - DEFAULT_H, 5000)
+    };
+  }
   const orbitPose = i => ({
     target: STOPS[i].pos,
     heading: orbitStart + orbitAngle + user.yaw, pitch: user.pitch, range: STOPS[i].range * user.zoom
   });
-
-  function pose(now) {
-    if (phase === 'toOverview') return lastPose;
-    if (phase === 'overview') return overviewPose();
-    if (phase === 'orbit') return orbitPose(current);
-    const u = clamp((now - flight.t0) / flight.dur, 0, 1), e = ease(u);
-    const to = orbitPose(current), f = flight.from;
-    const lr = Math.log(f.range) + (Math.log(to.range) - Math.log(f.range)) * e + Math.sin(Math.PI * u) * flight.hop;
-    if (u >= 1) { phase = 'orbit'; }
+  function blend(f, to, u, hop) {
+    const e = ease(u);
+    const lr = Math.log(f.range) + (Math.log(to.range) - Math.log(f.range)) * e + Math.sin(Math.PI * u) * (hop || 0);
     return {
       target: C.Cartesian3.lerp(f.target, to.target, e, new C.Cartesian3()),
       heading: f.heading + angDiff(f.heading, to.heading) * e,
@@ -363,109 +513,118 @@ async function start() {
       range: Math.exp(lr)
     };
   }
-  let lastPose = overviewPose();
-  scene.preRender.addEventListener(() => {
-    const p = pose(performance.now());
-    lastPose = p;
+  function applyPose(p) {
     camera.lookAtTransform(C.Transforms.eastNorthUpToFixedFrame(p.target),
       new C.HeadingPitchRange(rad(p.heading), rad(p.pitch), p.range));
+    lastPose = p;
+  }
+  function enterExplore() {
+    camera.lookAtTransform(C.Matrix4.IDENTITY);
+    phase = 'explore';
+    ctl.enableInputs = true;
+  }
+  function leaveExplore() {
+    if (phase !== 'explore') return lastPose || poseFromCamera();
+    const p = poseFromCamera();
+    ctl.enableInputs = false;
+    return p;
+  }
+
+  scene.preRender.addEventListener(() => {
+    if (phase === 'explore') return;
+    const now = performance.now();
+    if (phase === 'orbit') return applyPose(orbitPose(current));
+    const u = clamp((now - anim.t0) / anim.dur, 0, 1);
+    if (phase === 'fly') {
+      applyPose(blend(anim.from, orbitPose(current), u, anim.hop));
+      if (u >= 1) phase = 'orbit';
+    } else if (phase === 'toTop') {
+      applyPose(blend(anim.from, anim.to, u, 0));
+      if (u >= 1) enterExplore();
+    }
   });
 
   const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const speed = () => Number($('speed').value || 1);
+
   function flyTo(i) {
-    const from = lastPose;
-    const prev = current >= 0 ? STOPS[current] : center;
-    current = i;
-    orbitStart = bearing(prev, STOPS[i]);
-    if (current >= 0 && prev === STOPS[i]) orbitStart = from.heading;
+    i = clamp(i, 0, N - 1);
+    const from = leaveExplore();
+    const prev = current >= 0 ? STOPS[current] : null;
+    current = selected = i;
     orbitAngle = 0; user.yaw = 0;
-    const dist = km(prev, STOPS[i]);
-    const fromOverview = from.range > STOPS[i].range * 2.5;
-    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000) / Number($('speed').value || 1);
-    const hop = fromOverview ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
-    flight = { from, t0: performance.now(), dur, hop };
+    if (prev && prev !== STOPS[i]) orbitStart = bearing(prev, STOPS[i]);
+    else orbitStart = from.heading;
+    const dist = prev ? km(prev, STOPS[i]) : C.Cartesian3.distance(from.target, STOPS[i].pos) / 1000;
+    const fromHigh = from.range > STOPS[i].range * 2.5;
+    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000) / speed();
+    const hop = fromHigh ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
+    anim = { from, t0: performance.now(), dur, hop };
     phase = 'fly';
     updateUI();
   }
-  function toOverview() {
-    const from = lastPose;
+  function toTop() {
+    const from = phase === 'explore' ? poseFromCamera() : (lastPose || poseFromCamera());
+    ctl.enableInputs = false;
     current = -1;
-    const t0 = performance.now(), dur = reduceMotion() ? 1 : 3200;
-    phase = 'toOverview';
-    const step = () => {
-      if (phase !== 'toOverview') return;
-      const u = clamp((performance.now() - t0) / dur, 0, 1), e = ease(u);
-      const tgt = overviewPose();
-      lastPose = {
-        target: C.Cartesian3.lerp(from.target, tgt.target, e, new C.Cartesian3()),
-        heading: from.heading + angDiff(from.heading, tgt.heading) * e,
-        pitch: from.pitch + (tgt.pitch - from.pitch) * e,
-        range: Math.exp(Math.log(from.range) + (Math.log(tgt.range) - Math.log(from.range)) * e)
-      };
-      if (u >= 1) { phase = 'overview'; return; }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    anim = { from, to: topPose(), t0: performance.now(), dur: reduceMotion() ? 1 : 3400 };
+    phase = 'toTop';
     updateUI();
   }
 
-  /* ---------- touch / mouse: one finger turns and tilts, two fingers zoom ---------- */
+  /* ---------- touch / mouse while circling a landmark ---------- */
+  // In 'explore' the map's own controls handle everything (pan, pinch zoom, two-finger tilt).
   const area = $('map');
-  const hideHint = () => $('hint').classList.add('gone');
-  setTimeout(hideHint, 6000);
-  const ov = () => phase === 'overview' || phase === 'toOverview';
   const SIGN = CONFIG.invertDrag ? -1 : 1;
-  function turn(dx, dy) {
-    if (ov()) { user.ovYaw -= SIGN * dx * 0.3; user.ovPitch = clamp(user.ovPitch - SIGN * dy * 0.25, -89, -5); }
-    else { user.yaw -= SIGN * dx * 0.3; user.pitch = clamp(user.pitch - SIGN * dy * 0.25, -89, -3); }
-  }
-  function zoomBy(f) {
-    if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
-    else user.zoom = clamp(user.zoom * f, 0.2, 4);
-  }
-
-  // Touch (phones/tablets)
-  let t1 = null, pinch0 = 0;
-  const tdist = tl => Math.hypot(tl[0].clientX - tl[1].clientX, tl[0].clientY - tl[1].clientY);
+  const ours = () => phase !== 'explore';
   const onControl = e => e.target && e.target.closest && e.target.closest('button, a');
-  function tStart(e) {
-    if (onControl(e)) return;
-    hideHint();
-    if (e.touches.length === 1) { t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0; }
-    else if (e.touches.length >= 2) { t1 = null; pinch0 = tdist(e.touches); }
-    e.preventDefault();
+  function turn(dx, dy) {
+    user.yaw -= SIGN * dx * 0.3;
+    user.pitch = clamp(user.pitch - SIGN * dy * 0.25, -89, -3);
   }
-  function tMove(e) {
-    if (onControl(e)) return;
+  const zoomBy = f => { user.zoom = clamp(user.zoom * f, 0.04, 4); };
+
+  let t1 = null, pinch0 = 0, tap = null;
+  const tdist = tl => Math.hypot(tl[0].clientX - tl[1].clientX, tl[0].clientY - tl[1].clientY);
+  area.addEventListener('touchstart', e => {
+    if (!ours() || onControl(e)) return;
+    if (e.touches.length === 1) {
+      t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0;
+      tap = { x: t1.x, y: t1.y, t: performance.now() };
+    } else if (e.touches.length >= 2) { t1 = null; tap = null; pinch0 = tdist(e.touches); }
+    e.preventDefault();
+  }, { passive: false, capture: true });
+  area.addEventListener('touchmove', e => {
+    if (!ours() || onControl(e)) return;
     e.preventDefault();
     if (e.touches.length === 1 && t1) {
       const x = e.touches[0].clientX, y = e.touches[0].clientY;
       turn(x - t1.x, y - t1.y);
       t1 = { x, y };
+      if (tap && Math.hypot(x - tap.x, y - tap.y) > 8) tap = null;
     } else if (e.touches.length >= 2) {
       const d = tdist(e.touches);
       if (pinch0 > 0 && d > 0) zoomBy(pinch0 / d);
       pinch0 = d;
     }
-  }
-  function tEnd(e) {
+  }, { passive: false, capture: true });
+  const tEnd = e => {
+    if (!ours()) { t1 = null; return; }
+    if (e.touches.length === 0 && tap && performance.now() - tap.t < 350) pickStop(tap.x, tap.y);
     if (e.touches.length === 1) { t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0; }
-    else if (e.touches.length === 0) { t1 = null; pinch0 = 0; }
-  }
-  area.addEventListener('touchstart', tStart, { passive: false, capture: true });
-  area.addEventListener('touchmove', tMove, { passive: false, capture: true });
+    else if (e.touches.length === 0) { t1 = null; pinch0 = 0; tap = null; }
+  };
   area.addEventListener('touchend', tEnd, { capture: true });
   area.addEventListener('touchcancel', tEnd, { capture: true });
 
-  // Mouse (computers)
   let m1 = null;
   area.addEventListener('pointerdown', e => {
-    if (e.pointerType !== 'mouse' || onControl(e)) return;
-    hideHint(); m1 = { x: e.clientX, y: e.clientY };
+    if (e.pointerType !== 'mouse' || !ours() || onControl(e)) return;
+    m1 = { x: e.clientX, y: e.clientY };
     try { area.setPointerCapture(e.pointerId); } catch (_) {}
   }, true);
   area.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse' || !m1) return;
+    if (e.pointerType !== 'mouse' || !m1 || !ours()) return;
     turn(e.clientX - m1.x, e.clientY - m1.y);
     m1 = { x: e.clientX, y: e.clientY };
   }, true);
@@ -473,6 +632,7 @@ async function start() {
   area.addEventListener('pointerup', mUp, true);
   area.addEventListener('pointercancel', mUp, true);
   area.addEventListener('contextmenu', e => e.preventDefault());
+
   let toastTimer;
   area.addEventListener('wheel', e => {
     if (!(e.ctrlKey || e.metaKey)) {
@@ -482,9 +642,27 @@ async function start() {
       toastTimer = setTimeout(() => $('toast').classList.remove('on'), 1400);
       return;
     }
-    e.preventDefault(); hideHint();
-    zoomBy(Math.exp(e.deltaY * 0.004));
-  }, { passive: false });
+    e.preventDefault();
+    if (ours()) zoomBy(Math.exp(e.deltaY * 0.004));
+  }, { passive: false, capture: true });
+
+  /* ---------- info sheet ---------- */
+  let infoIdx = -1;
+  function showInfo(i) {
+    const s = STOPS[i];
+    infoIdx = i; selected = i;
+    $('sheetNum').textContent = 'Stop ' + (i + 1) + ' of ' + N;
+    $('sheetTitle').textContent = s.name;
+    $('sheetBody').innerHTML = '<p>' + esc(s.about) + '</p><ul>' + s.facts.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>';
+    $('sheetBody').scrollTop = 0;
+    $('sheetFly').textContent = playing ? 'Continue tour from here' : 'Fly here';
+    $('sheetFly').hidden = (i === current && phase !== 'explore' && !playing);
+    root.classList.add('info');
+    updateUI();
+  }
+  const hideInfo = () => { root.classList.remove('info'); infoIdx = -1; };
+  $('sheetClose').addEventListener('click', hideInfo);
+  $('sheetFly').addEventListener('click', () => { const i = infoIdx; hideInfo(); flyTo(i); });
 
   /* ---------- tour playback ---------- */
   let playing = false, last = null;
@@ -493,7 +671,7 @@ async function start() {
     root.classList.toggle('playing', on);
     root.classList.toggle('min', on);
     $('playIcon').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
-    $('play').setAttribute('aria-label', on ? 'Pause the tour' : (current >= 0 ? 'Resume the tour' : 'Start the tour'));
+    $('play').setAttribute('aria-label', on ? 'Pause the tour' : 'Play the tour');
     const mp = $('mpause');
     mp.querySelector('svg').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
     mp.setAttribute('aria-label', on ? 'Pause' : 'Play');
@@ -503,11 +681,11 @@ async function start() {
     if (!playing) return;
     if (last !== null && phase === 'orbit') {
       const dt = Math.min((ts - last) / 1000, 0.1);
-      orbitAngle += dt * 360 / CONFIG.orbitSeconds * Number($('speed').value || 1);
+      orbitAngle += dt * 360 / CONFIG.orbitSeconds * speed();
       ring();
       if (orbitAngle >= 360) {
         if (current < N - 1) flyTo(current + 1);
-        else { setPlaying(false); toOverview(); }
+        else { setPlaying(false); toTop(); }
       }
     }
     last = ts;
@@ -517,41 +695,46 @@ async function start() {
     const f = phase === 'orbit' ? clamp(orbitAngle / 360, 0, 1) : 0;
     $('ring').setAttribute('stroke-dashoffset', String(56.55 * (1 - f)));
   }
-
   function updateUI() {
-    const on = current >= 0;
-    $('now').classList.toggle('off', !on);
-    if (on) {
-      $('nowNum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
-      $('nowName').textContent = STOPS[current].name;
+    const i = current >= 0 ? current : selected;
+    if (current >= 0) {
+      $('subtitle').textContent = 'Stop ' + (current + 1) + ' of ' + N + ': ' + STOPS[current].name;
       $('mnum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
       $('mname').textContent = STOPS[current].name;
-      $('subtitle').textContent = 'Stop ' + (current + 1) + ' of ' + N + ': ' + STOPS[current].name;
     } else {
       $('subtitle').textContent = CONFIG.subtitle;
-      $('mnum').textContent = 'Overview'; $('mname').textContent = CONFIG.title;
+      $('mnum').textContent = 'Overview';
+      $('mname').textContent = CONFIG.title;
     }
-    chips.forEach((c, i) => c.classList.toggle('on', i === current));
-    if (on) chips[current].scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+    chips.forEach((c, k) => c.classList.toggle('on', k === current));
+    centerChip(i);
     ring();
   }
 
   function play() {
-    if (current < 0 || phase === 'overview' || phase === 'toOverview') flyTo(current < 0 ? 0 : current);
+    hideInfo();
+    $('intro').classList.add('gone');
+    if (phase === 'explore' || phase === 'toTop' || current < 0) flyTo(selected);
     setPlaying(true);
   }
-  function go(i) { flyTo(clamp(i, 0, N - 1)); }
+  const next = () => flyTo((current >= 0 ? current : selected - 1) + 1);
+  const prev = () => flyTo((current >= 0 ? current : selected + 1) - 1);
 
   $('play').addEventListener('click', () => playing ? setPlaying(false) : play());
   $('mpause').addEventListener('click', () => playing ? setPlaying(false) : play());
   $('expand').addEventListener('click', () => root.classList.remove('min'));
   $('collapse').addEventListener('click', () => root.classList.add('min'));
-  $('next').addEventListener('click', () => go(current + 1));
-  $('mnext').addEventListener('click', () => go(current + 1));
-  $('prev').addEventListener('click', () => go(current - 1));
-  $('overview').addEventListener('click', () => { setPlaying(false); toOverview(); });
-  chips.forEach((c, i) => c.addEventListener('click', () => go(i)));
+  $('next').addEventListener('click', next);
+  $('mnext').addEventListener('click', next);
+  $('prev').addEventListener('click', prev);
+  $('info').addEventListener('click', () => showInfo(current >= 0 ? current : selected));
+  $('minfo').addEventListener('click', () => showInfo(current >= 0 ? current : selected));
+  $('overview').addEventListener('click', () => { setPlaying(false); hideInfo(); toTop(); });
+  chips.forEach((c, i) => c.addEventListener('click', () => { flyTo(i); showInfo(i); }));
 
+  /* start overhead, free to explore */
+  applyPose(topPose());
+  enterExplore();
   updateUI();
 }
 
