@@ -45,6 +45,9 @@
 #redtail-route .foot select{-webkit-appearance:none;appearance:none;padding:0 26px 0 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
 #redtail-route .foot select option{color:#000}
 #redtail-route .foot .ghost{padding:0 12px}
+#redtail-route .icon.voice.on{background:var(--red);border-color:var(--red)}
+#redtail-route .sheet-foot .btn{flex:1}
+#redtail-route [hidden]{display:none!important}
 #redtail-route .mini .learn{flex-shrink:0;font:700 .92rem var(--font);color:#fff;background:rgba(255,255,255,.12);border:1px solid var(--rim);border-radius:999px;min-height:38px;padding:0 14px;margin:0;cursor:pointer;touch-action:manipulation}
 #redtail-route .foot select:hover,#redtail-route .foot .ghost:hover{background-color:rgba(255,255,255,.18)}
 
@@ -123,6 +126,9 @@
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
       </button>
       <button class="ghost learn" id="rt-info">Learn</button>
+      <button class="icon voice" id="rt-narrate" aria-pressed="false" aria-label="Narration" title="Narration: read each landmark aloud during the tour">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6h2.5l3.5-3v10L5 10H2.5z" fill="currentColor" stroke="none"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8"/></svg>
+      </button>
       <span class="spacer"></span>
       <button class="ghost" id="rt-overview">Overview</button>
     </div>
@@ -145,13 +151,14 @@
 
   <div class="sheet" id="rt-sheet" role="dialog" aria-labelledby="rt-sheetTitle">
     <div class="sheet-head">
-      <div><small id="rt-sheetNum"></small><h2 id="rt-sheetTitle"></h2></div>
+      <div><h2 id="rt-sheetTitle"></h2></div>
       <button class="icon" id="rt-sheetClose" aria-label="Close">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
       </button>
     </div>
     <div class="sheet-body" id="rt-sheetBody"></div>
     <div class="sheet-foot">
+      <button class="btn alt" id="rt-sheetListen">🔊 Listen</button>
       <button class="btn" id="rt-sheetFly">Fly here</button>
     </div>
   </div>
@@ -315,6 +322,107 @@ function centerChip(i) {
   box.scrollTo({ left: c.offsetLeft - (box.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' });
 }
 
+
+/* ---------- app state shared between the controls and the 3D map ---------- */
+const app = { ready: false, current: -1, selected: 0, phase: 'explore', playing: false,
+              flyTo: null, updateUI: null, onSpeechDone: null };
+
+/* ---------- voice narration (built into the browser; no extra service) ---------- */
+const synth = window.speechSynthesis;
+const canSpeak = !!(synth && window.SpeechSynthesisUtterance);
+let narrate = false, speaking = false, speakingIdx = -1, speakToken = 0, voice = null;
+function pickVoice() {
+  try {
+    const vs = synth.getVoices() || [];
+    voice = vs.find(v => /^en[-_]US/i.test(v.lang) && /Samantha|Ava|Allison|Google US English|Aaron|Nicky|Evan/i.test(v.name))
+         || vs.find(v => /^en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
+  } catch (e) { voice = null; }
+}
+if (canSpeak) { pickVoice(); try { synth.addEventListener('voiceschanged', pickVoice); } catch (e) { synth.onvoiceschanged = pickVoice; } }
+const stopText = s => s.name + '. ' + s.about + ' ' + s.facts.join(' ');
+function speak(text, idx, onEnd) {
+  if (!canSpeak) { if (onEnd) onEnd(); return; }
+  try { synth.cancel(); } catch (e) {}
+  const tok = ++speakToken;
+  const parts = String(text).match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) || [text];
+  speaking = true; speakingIdx = idx; updateVoiceUI();
+  parts.forEach((p, k) => {
+    const u = new SpeechSynthesisUtterance(p.trim());
+    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-US';
+    u.rate = 1;
+    if (k === parts.length - 1) u.onend = u.onerror = () => {
+      if (tok !== speakToken) return;
+      speaking = false; speakingIdx = -1; updateVoiceUI();
+      if (onEnd) onEnd();
+    };
+    synth.speak(u);
+  });
+}
+function stopSpeaking() {
+  speakToken++;
+  if (canSpeak) { try { synth.cancel(); } catch (e) {} }
+  speaking = false; speakingIdx = -1; updateVoiceUI();
+}
+function updateVoiceUI() {
+  const nb = $('narrate'), lb = $('sheetListen');
+  if (nb) { nb.setAttribute('aria-pressed', String(narrate)); nb.classList.toggle('on', narrate); }
+  if (lb) lb.textContent = (speaking && speakingIdx === infoIdx) ? '■ Stop' : '🔊 Listen';
+}
+
+/* ---------- landmark info card ---------- */
+let infoIdx = -1;
+function showInfo(i) {
+  if (!(i >= 0 && i < N)) i = 0;
+  const s = STOPS[i];
+  infoIdx = i; app.selected = i;
+  $('sheetTitle').textContent = s.name;
+  $('sheetBody').innerHTML = '<p>' + esc(s.about) + '</p><ul>' + s.facts.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>';
+  $('sheetBody').scrollTop = 0;
+  $('sheetFly').textContent = app.playing ? 'Continue tour from here' : 'Fly here';
+  $('sheetFly').hidden = !app.ready || (i === app.current && app.phase !== 'explore');
+  root.classList.add('info');
+  updateVoiceUI();
+  if (app.updateUI) { try { app.updateUI(); } catch (e) { console.error(e); } }
+}
+function hideInfo() {
+  if (speaking && speakingIdx === infoIdx && !app.playing) stopSpeaking();
+  root.classList.remove('info'); infoIdx = -1;
+  updateVoiceUI();
+}
+const learnIdx = () => (app.current >= 0 ? app.current : app.selected);
+$('info').addEventListener('click', () => showInfo(learnIdx()));
+$('minfo').addEventListener('click', () => showInfo(learnIdx()));
+$('sheetClose').addEventListener('click', hideInfo);
+$('sheetFly').addEventListener('click', () => { const i = infoIdx; hideInfo(); if (app.flyTo) app.flyTo(i); });
+$('sheetListen').addEventListener('click', () => {
+  if (speaking && speakingIdx === infoIdx) stopSpeaking();
+  else speak(stopText(STOPS[infoIdx]), infoIdx);
+});
+if (canSpeak) {
+  $('narrate').addEventListener('click', () => {
+    narrate = !narrate;
+    if (!narrate) stopSpeaking();
+    else if (app.playing && app.phase === 'orbit' && app.current >= 0) speak(stopText(STOPS[app.current]), app.current, () => app.onSpeechDone && app.onSpeechDone());
+    else speak('Narration on.', -1);
+    updateVoiceUI();
+  });
+} else {
+  $('narrate').hidden = true;
+  $('sheetListen').hidden = true;
+}
+updateVoiceUI();
+
+function toast(msg, ms) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.classList.remove('on'), ms || 1400);
+}
+window.addEventListener('error', e => {
+  if (e && e.filename && !/Cesium|^$/.test(e.filename) && e.filename !== location.href) return;
+  console.error(e.error || e.message);
+});
+
 function fail(msg) {
   const d = document.createElement('div');
   d.className = 'fallback'; d.innerHTML = msg;
@@ -401,14 +509,17 @@ async function start() {
     p.h += (p.hT - p.h) * 0.05;
     p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h);
   }));
-  if (scene.sampleHeightMostDetailed) {
-    scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)))
-      .then(res => res.forEach((c, i) => { if (c && isFinite(c.height)) pts[i].hT = c.height; }))
-      .catch(e => console.warn('Height sampling failed', e));
-  }
+  try {
+    if (scene.sampleHeightSupported !== false && scene.sampleHeightMostDetailed) {
+      Promise.resolve(scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat))))
+        .then(res => (res || []).forEach((c, i) => { if (c && isFinite(c.height)) pts[i].hT = c.height; }))
+        .catch(e => console.warn('Height sampling failed', e));
+    }
+  } catch (e) { console.warn('Height sampling unavailable', e); }
 
   /* ---------- labels (tap to learn more) ---------- */
-  let current = -1, selected = 0;
+  let current = -1;
+  const sync = () => { app.current = current; app.phase = phase; app.playing = playing; if (current >= 0) app.selected = current; };
   const RED = C.Color.fromCssColorString('#d42a2f');
   const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.8)');
   const FONT = '"Barlow Semi Condensed", sans-serif';
@@ -469,6 +580,7 @@ async function start() {
   /* ---------- camera ---------- */
   // phases: 'explore' (free map) | 'fly' (to a landmark) | 'orbit' (circling) | 'toTop' (back to overhead)
   let phase = 'explore', orbitStart = 0, orbitAngle = 0, anim = null, lastPose = null, free = null;
+  let arrived = false, speechDone = true, playing = false;
   const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1 };
 
   function topPose() {
@@ -514,11 +626,11 @@ async function start() {
     const u = clamp((performance.now() - anim.t0) / anim.dur, 0, 1);
     if (phase === 'fly') {
       applyPose(blend(anim.from, orbitPose(current), u, anim.hop));
-      if (u >= 1) phase = 'orbit';
+      if (u >= 1) { phase = 'orbit'; sync(); onArrive(); }
     } else if (phase === 'toTop') {
       const p = blend(anim.from, TOP, u, 0);
       applyPose(p);
-      if (u >= 1) enterExplore(TOP);
+      if (u >= 1) { enterExplore(TOP); sync(); }
     }
   });
 
@@ -528,7 +640,7 @@ async function start() {
     i = clamp(i, 0, N - 1);
     const from = lastPose;
     const prev = current >= 0 ? STOPS[current] : null;
-    current = selected = i;
+    current = app.selected = i;
     orbitAngle = 0; user.yaw = 0;
     if (prev && prev !== STOPS[i]) orbitStart = bearing(prev, STOPS[i]);
     else orbitStart = from.heading;
@@ -537,14 +649,15 @@ async function start() {
     const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000);
     const hop = fromHigh ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
     anim = { from, t0: performance.now(), dur, hop };
-    phase = 'fly';
-    updateUI();
+    phase = 'fly'; arrived = false;
+    stopSpeaking();
+    sync(); updateUI();
   }
   function toTop() {
     current = -1;
     anim = { from: lastPose, t0: performance.now(), dur: reduceMotion() ? 1 : 3400 };
     phase = 'toTop';
-    updateUI();
+    sync(); updateUI();
   }
 
   /* ---------- touch & mouse ----------
@@ -554,7 +667,7 @@ async function start() {
   const SIGN = CONFIG.invertDrag ? -1 : 1;
   const onControl = e => e.target && e.target.closest && e.target.closest('button, a');
   const settle = () => {
-    if (phase === 'toTop') enterExplore(lastPose);
+    if (phase === 'toTop') { enterExplore(lastPose); sync(); }
   };
   function pan(dx, dy) {
     if (phase !== 'explore') return;
@@ -665,28 +778,20 @@ async function start() {
     zoomBy(Math.exp(e.deltaY * 0.004));
   }, { passive: false, capture: true });
 
-  /* ---------- info sheet ---------- */
-  let infoIdx = -1;
-  function showInfo(i) {
-    const s = STOPS[i];
-    infoIdx = i; selected = i;
-    $('sheetNum').textContent = 'Stop ' + (i + 1) + ' of ' + N;
-    $('sheetTitle').textContent = s.name;
-    $('sheetBody').innerHTML = '<p>' + esc(s.about) + '</p><ul>' + s.facts.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>';
-    $('sheetBody').scrollTop = 0;
-    $('sheetFly').textContent = playing ? 'Continue tour from here' : 'Fly here';
-    $('sheetFly').hidden = (i === current && phase !== 'explore');
-    root.classList.add('info');
-    updateUI();
-  }
-  const hideInfo = () => { root.classList.remove('info'); infoIdx = -1; };
-  $('sheetClose').addEventListener('click', hideInfo);
-  $('sheetFly').addEventListener('click', () => { const i = infoIdx; hideInfo(); flyTo(i); });
-
   /* ---------- tour playback ---------- */
-  let playing = false, last = null;
+  let last = null;
+  function onArrive() {
+    if (arrived) return;
+    arrived = true;
+    if (narrate && playing) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); }
+    else speechDone = true;
+  }
+  app.onSpeechDone = () => { speechDone = true; };
   function setPlaying(on) {
     playing = on;
+    if (!on && narrate) stopSpeaking();
+    if (on && narrate && phase === 'orbit' && current >= 0) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); }
+    sync();
     root.classList.toggle('playing', on);
     root.classList.toggle('min', on);
     $('playIcon').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
@@ -702,7 +807,7 @@ async function start() {
       const dt = Math.min((ts - last) / 1000, 0.1);
       orbitAngle += dt * 360 / CONFIG.orbitSeconds;
       ring();
-      if (orbitAngle >= 360) {
+      if (orbitAngle >= 360 && (!narrate || speechDone || !speaking)) {
         if (current < N - 1) flyTo(current + 1);
         else { setPlaying(false); toTop(); }
       }
@@ -715,7 +820,7 @@ async function start() {
     $('ring').setAttribute('stroke-dashoffset', String(56.55 * (1 - f)));
   }
   function updateUI() {
-    const i = current >= 0 ? current : selected;
+    const i = current >= 0 ? current : app.selected;
     if (current >= 0) {
       $('mnum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
       $('mname').textContent = STOPS[current].name;
@@ -731,11 +836,11 @@ async function start() {
   function play() {
     hideInfo();
     $('intro').classList.add('gone');
-    if (phase === 'explore' || phase === 'toTop' || current < 0) flyTo(selected);
+    if (phase === 'explore' || phase === 'toTop' || current < 0) flyTo(app.selected);
     setPlaying(true);
   }
-  const next = () => flyTo((current >= 0 ? current : selected - 1) + 1);
-  const prev = () => flyTo((current >= 0 ? current : selected + 1) - 1);
+  const next = () => flyTo((current >= 0 ? current : app.selected - 1) + 1);
+  const prev = () => flyTo((current >= 0 ? current : app.selected + 1) - 1);
 
   $('play').addEventListener('click', () => playing ? setPlaying(false) : play());
   $('mpause').addEventListener('click', () => playing ? setPlaying(false) : play());
@@ -744,15 +849,17 @@ async function start() {
   $('next').addEventListener('click', next);
   $('mnext').addEventListener('click', next);
   $('prev').addEventListener('click', prev);
-  $('info').addEventListener('click', () => showInfo(current >= 0 ? current : selected));
-  $('minfo').addEventListener('click', () => showInfo(current >= 0 ? current : selected));
   $('overview').addEventListener('click', () => { setPlaying(false); hideInfo(); toTop(); });
   chips.forEach((c, i) => c.addEventListener('click', () => { flyTo(i); showInfo(i); }));
+
+  app.flyTo = i => { hideInfo(); flyTo(i); };
+  app.updateUI = updateUI;
+  app.ready = true;
 
   /* start overhead, free to explore */
   applyPose(TOP);
   enterExplore(TOP);
-  updateUI();
+  sync(); updateUI();
 }
 
 loadLib(0);
