@@ -9,112 +9,131 @@
 <body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
-#redtail-route{--red:#680f02;--red-hi:#7f1604;--brand:#680f02;--brand-hi:#7f1604;--cream:#f3eee7;--ink:#fff;--text:#111;--muted:rgba(0,0,0,.62);--glass:rgba(243,238,231,.94);--rim:#000;--font:proxima-nova,'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--display:ff-market-web,'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:420px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:440px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #redtail-route *{box-sizing:border-box}
 #redtail-route #rt-map{position:absolute;inset:0}
 #redtail-route #rt-map canvas{touch-action:none;cursor:grab}
 #redtail-route #rt-map canvas:active{cursor:grabbing}
-#redtail-route .cesium-viewer-bottom{position:absolute!important;top:8px!important;bottom:auto!important;left:8px!important;right:auto!important;width:auto!important;height:auto!important;max-width:calc(100% - 16px);margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
-#redtail-route .cesium-viewer-bottom>*{pointer-events:auto}
-#redtail-route .cesium-widget-credits{display:block;font:500 10px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.92)}
-#redtail-route .cesium-credit-logoContainer,#redtail-route .cesium-credit-expand-link{display:none!important}
-#redtail-route .cesium-credit-textContainer{display:block!important;max-width:340px;padding:0;border-radius:8px;background:none}
-#redtail-route .cesium-credit-textContainer img{height:16px!important;width:auto!important;vertical-align:middle;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
-#redtail-route:not(.show-credits) .cesium-credit-textContainer>.cesium-credit-delimiter,#redtail-route:not(.show-credits) .cesium-credit-textContainer>.cesium-credit-wrapper:not(:has(img)){display:none!important}
-#redtail-route.show-credits .cesium-credit-textContainer{padding:6px 9px;background:rgba(24,19,16,.82)}
+#redtail-route .cesium-viewer-bottom{top:8px;bottom:auto;left:8px;right:auto;padding:0;max-width:calc(100% - 16px)}
+#redtail-route .cesium-widget-credits{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font:500 10px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.9)}
+#redtail-route .cesium-credit-logoContainer{display:inline-flex;align-items:center;margin:0;padding:0}
+#redtail-route .cesium-credit-logoContainer a[href*="cesium.com"]{display:none!important}
+#redtail-route .cesium-credit-logoContainer img{height:16px!important;width:auto!important}
+#redtail-route .cesium-credit-expand-link{display:none!important}
+#redtail-route .cesium-credit-textContainer{display:none;flex-basis:100%;max-width:340px;padding:6px 9px;border-radius:8px;background:rgba(24,19,16,.82)}
+#redtail-route.show-credits .cesium-credit-textContainer{display:block}
 #redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
 #redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
-#redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:2px;align-items:center;padding:12px 14px 10px 12px;color:var(--text);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--rim);border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.28);transition:transform .45s var(--ease),opacity .3s ease}
+
+#redtail-route .now{position:absolute;left:50%;top:40px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:8px 16px 9px;border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--rim);text-align:center;pointer-events:none;transition:opacity .35s ease,transform .35s var(--ease)}
+#redtail-route .now.off{opacity:0;transform:translate(-50%,-8px)}
+#redtail-route .now small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.04em}
+#redtail-route .now b{display:block;font-size:1.35rem;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+#redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;padding:12px 12px 10px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:transform .45s var(--ease),opacity .3s ease}
 #redtail-route.min .panel{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
-#redtail-route .play{grid-row:1/span 3;width:58px;height:58px;padding:0;margin:0;border-radius:10px;border:1px solid #000;background:var(--brand);color:var(--cream);display:grid;place-items:center;cursor:pointer;transition:transform .15s,background-color .15s;touch-action:manipulation}
-#redtail-route .play:active{transform:scale(.95)}
-#redtail-route .play:hover{background:var(--brand-hi)}
+#redtail-route .top{display:flex;align-items:center;gap:12px}
+#redtail-route .play{flex-shrink:0;width:54px;height:54px;padding:0;margin:0;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 6px 16px rgba(212,42,47,.45);transition:transform .15s,background .15s;touch-action:manipulation}
+#redtail-route .play:active{transform:scale(.94)}
+#redtail-route .play:hover{background:var(--red-hi)}
 #redtail-route .play svg{width:22px;height:22px}
-#redtail-route .head{display:flex;align-items:flex-start;gap:8px;min-width:0}
-#redtail-route .head>div{flex:1;min-width:0}
-#redtail-route .rt-h{margin:0;font-family:var(--display);font-size:1.3rem;font-weight:700;line-height:1.1;text-transform:uppercase;letter-spacing:.01em;color:#000}
-#redtail-route .sub{margin:2px 0 0;font-size:.9rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-#redtail-route .collapse{display:none;flex-shrink:0;width:32px;height:32px;margin:-4px -6px 0 0;padding:0;border:1px solid #000;border-radius:10px;background:transparent;color:#000;cursor:pointer;place-items:center}
+#redtail-route .titles{flex:1;min-width:0}
+#redtail-route .rt-h{margin:0;font-size:1.2rem;font-weight:700;line-height:1.15}
+#redtail-route .sub{margin:1px 0 0;font-size:.92rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+#redtail-route .icon{flex-shrink:0;width:38px;height:38px;padding:0;margin:0;border:1px solid var(--rim);border-radius:50%;background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
+#redtail-route .icon:hover{background:rgba(255,255,255,.2)}
+#redtail-route .icon svg{width:16px;height:16px}
+#redtail-route .collapse{display:none}
 #redtail-route.playing .collapse{display:grid}
-#redtail-route .collapse svg{width:16px;height:16px}
-#redtail-route input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;margin:2px 0 0;padding:0;background:transparent;border:0;cursor:pointer;touch-action:manipulation}
-#redtail-route input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--brand) var(--p,0%),rgba(0,0,0,.16) var(--p,0%))}
-#redtail-route input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(0,0,0,.16)}
-#redtail-route input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--brand)}
-#redtail-route input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 1px 4px rgba(0,0,0,.3)}
-#redtail-route input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--brand)}
-#redtail-route .row{display:flex;align-items:center;gap:8px}
-#redtail-route .dist{flex:1;font-size:.92rem;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-#redtail-route .dist b{color:#000;font-weight:700}
-#redtail-route .row select,#redtail-route .row .ghost{font:600 .85rem var(--font);text-transform:uppercase;letter-spacing:.02em;color:#000;background-color:transparent;border:1px solid #000;border-radius:10px;min-height:36px;margin:0;cursor:pointer;touch-action:manipulation}
-#redtail-route .row select{-webkit-appearance:none;appearance:none;padding:0 26px 0 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:12px}
-#redtail-route .row select option{color:#000}
-#redtail-route .row .ghost{padding:0 14px}
-#redtail-route .row select:hover,#redtail-route .row .ghost:hover{background-color:rgba(0,0,0,.07)}
-#redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),400px);display:flex;align-items:center;gap:10px;padding:6px;color:var(--text);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #000;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.26);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
+#redtail-route .chips{display:flex;gap:6px;overflow-x:auto;margin:10px -12px 0;padding:2px 12px 4px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#redtail-route .chips::-webkit-scrollbar{display:none}
+#redtail-route .chip{flex-shrink:0;scroll-snap-align:start;font:600 .92rem var(--font);color:#fff;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid var(--rim);border-radius:999px;padding:7px 12px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .chip i{font-style:normal;color:var(--muted);margin-right:5px;font-variant-numeric:tabular-nums}
+#redtail-route .chip:hover{background:rgba(255,255,255,.18)}
+#redtail-route .chip.on{background:var(--red);border-color:var(--red)}
+#redtail-route .chip.on i{color:rgba(255,255,255,.85)}
+#redtail-route .foot{display:flex;align-items:center;gap:8px;margin-top:8px}
+#redtail-route .foot .spacer{flex:1}
+#redtail-route .foot select,#redtail-route .foot .ghost{font:600 .92rem var(--font);color:#fff;background-color:rgba(255,255,255,.1);border:1px solid var(--rim);border-radius:10px;min-height:36px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .foot select{-webkit-appearance:none;appearance:none;padding:0 26px 0 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
+#redtail-route .foot select option{color:#000}
+#redtail-route .foot .ghost{padding:0 12px}
+#redtail-route .foot select:hover,#redtail-route .foot .ghost:hover{background-color:rgba(255,255,255,.18)}
+
+#redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),420px);display:flex;align-items:center;gap:8px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.3);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
 #redtail-route.min .mini{transform:translate(-50%,0);opacity:1;pointer-events:auto}
-#redtail-route .mini .mbtn{flex-shrink:0;width:40px;height:40px;padding:0;margin:0;border:1px solid #000;border-radius:10px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
-#redtail-route .mini .mplay{background:var(--brand);color:var(--cream)}
-#redtail-route .mini .mexpand{background:transparent;color:#000}
-#redtail-route .mini svg{width:18px;height:18px}
-#redtail-route .mbar{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.16);overflow:hidden}
-#redtail-route .mbar i{display:block;height:100%;width:0;background:var(--brand);border-radius:2px}
-#redtail-route .mdist{font-size:.95rem;font-weight:600;color:#000;font-variant-numeric:tabular-nums;white-space:nowrap}
-#redtail-route .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;max-width:calc(100% - 40px);padding:9px 16px;border-radius:999px;background:rgba(24,19,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:1rem;font-weight:600;text-align:center;pointer-events:none;transition:opacity .5s}
+#redtail-route .mini .mplay{flex-shrink:0;width:42px;height:42px;padding:0;margin:0;border:0;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer}
+#redtail-route .mini .mplay svg{width:18px;height:18px}
+#redtail-route .mtext{flex:1;min-width:0;line-height:1.15}
+#redtail-route .mtext small{display:block;font-size:.78rem;color:var(--muted);font-weight:600}
+#redtail-route .mtext b{display:block;font-size:1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#redtail-route .mring{flex-shrink:0;width:22px;height:22px;transform:rotate(-90deg)}
+
+#redtail-route .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 40px);padding:9px 16px;border-radius:999px;background:rgba(24,19,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:1rem;font-weight:600;text-align:center;pointer-events:none;transition:opacity .5s}
 #redtail-route .hint.gone{opacity:0}
-#redtail-route .toast{position:absolute;left:50%;top:44px;transform:translateX(-50%);color:#fff;padding:6px 12px;border-radius:999px;background:rgba(24,19,16,.8);font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s}
+#redtail-route .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:7px 13px;border-radius:999px;background:rgba(24,19,16,.82);font-size:.92rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s}
 #redtail-route .toast.on{opacity:1}
 #redtail-route :focus-visible{outline:3px solid #ffd27a;outline-offset:2px}
 #redtail-route .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#redtail-route .fallback{position:absolute;inset:0;color:#fff;display:grid;place-items:center;font-size:1.05rem;line-height:1.45;padding:24px;text-align:center;background:#3a2a22;z-index:5}
+#redtail-route .fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:1.05rem;line-height:1.45;padding:24px;text-align:center;background:#3a2a22;z-index:5}
 @media (min-width:700px){
-#redtail-route .panel{left:16px;right:16px;bottom:16px;padding:14px 18px 12px 14px;column-gap:16px}
-#redtail-route .play{width:64px;height:64px}
-#redtail-route .rt-h{font-size:1.5rem}
+#redtail-route .panel{left:16px;right:16px;bottom:16px;padding:14px 16px 12px}
+#redtail-route .chips{margin:12px -16px 0;padding:2px 16px 4px}
+#redtail-route .play{width:60px;height:60px}
+#redtail-route .rt-h{font-size:1.4rem}
+#redtail-route .now b{font-size:1.6rem}
 #redtail-route .mini{bottom:16px}
 }
-@media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint{transition:none}}
+@media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint,#redtail-route .now{transition:none}}
 </style>
 <div id="redtail-route">
   <div id="rt-map"></div>
+  <div class="now off" id="rt-now" aria-live="polite"><small id="rt-nowNum"></small><b id="rt-nowName"></b></div>
   <div class="hint" id="rt-hint"></div>
   <div class="toast" id="rt-toast"></div>
 
   <div class="panel" id="rt-panel">
-    <button class="play" id="rt-play" aria-label="Fly the route">
-      <svg id="rt-playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
-    </button>
-    <div class="head">
-      <div>
+    <div class="top">
+      <button class="play" id="rt-play" aria-label="Start the tour">
+        <svg id="rt-playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
+      </button>
+      <div class="titles">
         <p class="rt-h" id="rt-title"></p>
         <p class="sub" id="rt-subtitle"></p>
       </div>
-      <button class="collapse" id="rt-collapse" aria-label="Minimize controls">
+      <button class="icon collapse" id="rt-collapse" aria-label="Minimize controls">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
       </button>
     </div>
-    <label class="sr" for="rt-scrub">Position along the route</label>
-    <input type="range" id="rt-scrub" min="0" step="1" value="0">
-    <div class="row">
-      <span class="dist"><b id="rt-dist">0</b> of <span id="rt-distTotal">0</span> miles</span>
-      <label class="sr" for="rt-speed">Playback speed</label>
+    <div class="chips" id="rt-chips" role="list"></div>
+    <div class="foot">
+      <button class="icon" id="rt-prev" aria-label="Previous stop">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+      <button class="icon" id="rt-next" aria-label="Next stop">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+      <span class="spacer"></span>
+      <label class="sr" for="rt-speed">Tour speed</label>
       <select id="rt-speed">
-        <option value="10">10×</option>
-        <option value="20">20×</option>
-        <option value="40">40×</option>
-        <option value="80">80×</option>
+        <option value="0.6">Relaxed</option>
+        <option value="1" selected>Normal</option>
+        <option value="1.8">Quick</option>
       </select>
       <button class="ghost" id="rt-overview">Overview</button>
     </div>
   </div>
 
   <div class="mini" id="rt-mini">
-    <button class="mbtn mplay" id="rt-mpause" aria-label="Pause">
+    <button class="mplay" id="rt-mpause" aria-label="Pause">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg>
     </button>
-    <div class="mbar"><i id="rt-mbar"></i></div>
-    <span class="mdist"><span id="rt-mdist">0</span> mi</span>
-    <button class="mbtn mexpand" id="rt-expand" aria-label="Show controls">
+    <svg class="mring" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3"/><circle id="rt-ring" cx="11" cy="11" r="9" fill="none" stroke="#e8453c" stroke-width="3" stroke-linecap="round" stroke-dasharray="56.55" stroke-dashoffset="56.55"/></svg>
+    <div class="mtext"><small id="rt-mnum"></small><b id="rt-mname"></b></div>
+    <button class="icon" id="rt-mnext" aria-label="Next stop">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+    </button>
+    <button class="icon" id="rt-expand" aria-label="Show controls">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l4-4 4 4"/></svg>
     </button>
   </div>
@@ -125,35 +144,33 @@
 const CONFIG = {
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
-  subtitle: '',
-  modelUrl: 'kodiak.glb?v=11',   // Kodiak 100 in N959WB livery
-  planeScale: 7,            // enlarged so the plane reads from the chase camera
-  homeLabel: 'Canyonlands Field (KCNY)',
-  defaultSpeed: 20,
-  fieldElevationFt: 4557,   // KCNY
-  cruiseAltitudeFt: 7500,   // altitude shown on the map (MSL)
-  climbSeconds: 300,
-  descentSeconds: 300,
-  chaseRangeM: 520,         // starting camera distance from the plane
-  chasePitchDeg: -18        // starting camera tilt (negative = looking down)
+  subtitle: 'Fly to each landmark on the tour',
+  orbitSeconds: 20,      // one full 360° circle at Normal speed
+  orbitPitchDeg: -28,    // camera tilt while circling (negative = looking down)
+  home: { name: 'Canyonlands Field (KCNY)', lat: 38.757631, lon: -109.753463 }
 };
 
-/* Waypoints from the ForeFlight NavLog: [longitude, latitude] */
-const W = [
-  [-109.75484, 38.75496], // KCNY
-  [-109.95930, 38.48109], [-109.97557, 38.38400], [-109.97555, 38.27118],
-  [-109.95604, 38.19992], [-109.89183, 38.22123], [-109.85240, 38.20247],
-  [-109.87294, 38.12144], [-109.84750, 38.08440], [-109.76281, 37.97676],
-  [-109.74030, 37.98636], [-109.75169, 38.00650], [-109.77335, 38.02245],
-  [-109.78000, 38.04379], [-109.77231, 38.06672], [-109.75282, 38.12429],
-  [-109.76344, 38.18914], [-109.76085, 38.25149],
-  [-109.66000, 38.47278], // UT68
-  [-109.62158, 38.57100], [-109.61588, 38.57268], [-109.61310, 38.57808],
-  [-109.61412, 38.58125], [-109.67034, 38.63344],
-  [-109.75484, 38.75496]  // KCNY
+/* Tour stops, in order, from the Garmin flight plan (KCNY to KCNY).
+   range = how far the camera circles from the landmark, in meters. */
+const STOPS = [
+  { name: 'Jewel Tibbetts Arch',        lat: 38.62825788612484, lon: -109.8638645570713, range: 1300 },
+  { name: 'Hell Roaring Canyon',        lat: 38.61629,          lon: -109.89132,         range: 3000 },
+  { name: 'Mineral Canyon',             lat: 38.54319,          lon: -109.92719,         range: 3000 },
+  { name: 'Upheaval Dome',              lat: 38.43872,          lon: -109.92841,         range: 4500 },
+  { name: 'Grand View Point',           lat: 38.30678412821815, lon: -109.8560061207679, range: 3200 },
+  { name: 'The Chocolate Drops',        lat: 38.2223,           lon: -109.99624,         range: 1600 },
+  { name: 'Chimney Rock',               lat: 38.1564200027701,  lon: -110.0233568893105, range: 1600 },
+  { name: 'The Confluence',             lat: 38.18858,          lon: -109.87961,         range: 3800 },
+  { name: 'Druid Arch',                 lat: 38.08876,          lon: -109.83244,         range: 1100 },
+  { name: 'Kirk Arch',                  lat: 37.99144,          lon: -109.76037,         range: 1100 },
+  { name: 'Elephant Trunk Arch',        lat: 38.00256,          lon: -109.75975,         range: 1100 },
+  { name: 'Angel Arch',                 lat: 38.0517,           lon: -109.75627,         range: 1100 },
+  { name: 'Castle Arch',                lat: 38.065,            lon: -109.74051,         range: 1100 },
+  { name: 'The Loop',                   lat: 38.23929,          lon: -109.8164,          range: 4500 },
+  { name: 'Dead Horse Point State Park',lat: 38.47078,          lon: -109.74045,         range: 3500 },
+  { name: 'Potash Ponds',               lat: 38.48727339598815, lon: -109.6837016489806, range: 4200 },
+  { name: 'Corona Arch',                lat: 38.58398781784155, lon: -109.6289062332708, range: 1100 }
 ];
-/* ForeFlight leg times in seconds (playback follows the real pacing) */
-const SEC = [443,121,140,90,68,45,102,52,157,25,27,29,27,29,74,81,77,291,127,5,7,4,107,213];
 /* ============================================ */
 
 const CESIUM_VERSION = '1.120.0';
@@ -161,95 +178,42 @@ const LIB_SOURCES = [
   'https://cdn.jsdelivr.net/npm/cesium@' + CESIUM_VERSION + '/Build/Cesium/',
   'https://cdnjs.cloudflare.com/ajax/libs/cesium/' + CESIUM_VERSION + '/'
 ];
-const GEOID_M = -18;
+const DEFAULT_H = 1550; // starting height guess (m) until the real ground height is measured
 
 const root = document.getElementById('redtail-route');
 const $ = id => document.getElementById('rt-' + id);
 const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const angDiff = (a, b) => ((b - a + 540) % 360) - 180;
-function nm(a, b) {
-  const R = 3440.065, dLat = rad(b[1] - a[1]), dLng = rad(b[0] - a[0]);
-  const h = Math.sin(dLat/2)**2 + Math.cos(rad(a[1])) * Math.cos(rad(b[1])) * Math.sin(dLng/2)**2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+const ease = u => u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3) / 2;
 function bearing(a, b) {
-  const y = Math.sin(rad(b[0]-a[0])) * Math.cos(rad(b[1]));
-  const x = Math.cos(rad(a[1]))*Math.sin(rad(b[1])) - Math.sin(rad(a[1]))*Math.cos(rad(b[1]))*Math.cos(rad(b[0]-a[0]));
+  const y = Math.sin(rad(b.lon-a.lon)) * Math.cos(rad(b.lat));
+  const x = Math.cos(rad(a.lat))*Math.sin(rad(b.lat)) - Math.sin(rad(a.lat))*Math.cos(rad(b.lat))*Math.cos(rad(b.lon-a.lon));
   return (deg(Math.atan2(y, x)) + 360) % 360;
 }
-
-const cumT = [0], legNm = [], cumNm = [0];
-for (let i = 0; i < SEC.length; i++) {
-  cumT.push(cumT[i] + SEC[i]);
-  legNm.push(nm(W[i], W[i+1]));
-  cumNm.push(cumNm[i] + legNm[i]);
-}
-const TOTAL_T = cumT[cumT.length - 1], TOTAL_NM = cumNm[cumNm.length - 1];
-
-function legAt(t) {
-  t = clamp(t, 0, TOTAL_T);
-  let i = 0;
-  while (i < SEC.length - 1 && t >= cumT[i+1]) i++;
-  return { i, f: clamp((t - cumT[i]) / SEC[i], 0, 1) };
-}
-function rawLngLatAt(t) {
-  const { i, f } = legAt(t);
-  return [W[i][0] + (W[i+1][0]-W[i][0])*f, W[i][1] + (W[i+1][1]-W[i][1])*f];
-}
-/* Smooth the turns: sample the straight-leg path once a second, round the corners with a
-   few passes of a moving average, and keep the start and end pinned to the airport. */
-const SM = (() => {
-  const n = Math.ceil(TOTAL_T) + 1, raw = [];
-  for (let s = 0; s < n; s++) raw.push(rawLngLatAt(Math.min(s, TOTAL_T)));
-  let a = raw;
-  const R = 24;
-  for (let pass = 0; pass < 4; pass++) {
-    const out = new Array(n);
-    for (let i = 0; i < n; i++) {
-      let x = 0, y = 0;
-      for (let j = i - R; j <= i + R; j++) { const p = a[clamp(j, 0, n - 1)]; x += p[0]; y += p[1]; }
-      out[i] = [x / (2 * R + 1), y / (2 * R + 1)];
-    }
-    a = out;
-  }
-  return a.map((p, i) => {
-    const b = clamp(Math.min(i, n - 1 - i) / 90, 0, 1), k = b * b * (3 - 2 * b);
-    return [raw[i][0] + (p[0] - raw[i][0]) * k, raw[i][1] + (p[1] - raw[i][1]) * k];
-  });
-})();
-function lngLatAt(t) {
-  t = clamp(t, 0, TOTAL_T);
-  const i = Math.min(Math.floor(t), SM.length - 2), f = t - i;
-  return [SM[i][0] + (SM[i+1][0] - SM[i][0]) * f, SM[i][1] + (SM[i+1][1] - SM[i][1]) * f];
-}
-function trackAt(t, span) {
-  const a = lngLatAt(Math.max(0, t - span)), b = lngLatAt(Math.min(TOTAL_T, t + span));
-  return nm(a, b) < 0.01 ? bearing(W[0], W[1]) : bearing(a, b);
-}
-const smooth = x => x * x * (3 - 2 * x);
-function altM(t) {
-  const up = smooth(clamp(t / CONFIG.climbSeconds, 0, 1));
-  const down = smooth(clamp((TOTAL_T - t) / CONFIG.descentSeconds, 0, 1));
-  const ft = CONFIG.fieldElevationFt + (CONFIG.cruiseAltitudeFt - CONFIG.fieldElevationFt) * Math.min(up, down);
-  return ft * 0.3048 + GEOID_M + 3;
+function km(a, b) {
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+  return 12742 * Math.asin(Math.sqrt(h));
 }
 
-/* ---------- UI text ---------- */
+/* ---------- static UI ---------- */
 $('title').textContent = CONFIG.title;
 $('subtitle').textContent = CONFIG.subtitle;
-$('subtitle').hidden = !CONFIG.subtitle;
-const MI = 1.150779;   // statute miles per nautical mile
-$('distTotal').textContent = Math.round(TOTAL_NM * MI);
-$('scrub').max = TOTAL_T;
-$('speed').value = String(CONFIG.defaultSpeed);
+const N = STOPS.length;
+const chips = STOPS.map((s, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.type = 'button'; b.setAttribute('role', 'listitem');
+  b.innerHTML = '<i>' + (i + 1) + '</i>' + s.name;
+  $('chips').appendChild(b);
+  return b;
+});
 const coarse = matchMedia('(pointer: coarse)').matches;
 $('hint').textContent = coarse ? 'Touch and drag to look around. Pinch to zoom.' : 'Drag to look around. Ctrl + scroll to zoom.';
 
 function fail(msg) {
   const d = document.createElement('div');
-  d.className = 'fallback';
-  d.innerHTML = msg;
+  d.className = 'fallback'; d.innerHTML = msg;
   $('map').appendChild(d);
   $('hint').classList.add('gone');
 }
@@ -294,28 +258,22 @@ async function start() {
     console.error(e);
     return fail('The 3D map couldn’t start: ' + (e && e.message ? e.message : 'unknown error'));
   }
-
   const scene = viewer.scene, camera = viewer.camera;
   scene.skyAtmosphere.show = true;
-  scene.screenSpaceCameraController.enableInputs = false;   // camera is driven by our own touch handling
+  scene.screenSpaceCameraController.enableInputs = false;
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_CLICK);
 
-  /* Credits: Google logo stays on screen; data sources behind a small "Data" toggle */
-  const creditBox = viewer.cesiumWidget.creditContainer;
+  /* Credits: Google logo on screen; data sources behind a small "Data" toggle */
   const dataBtn = document.createElement('button');
-  dataBtn.className = 'rt-data';
-  dataBtn.type = 'button';
-  dataBtn.textContent = 'Data';
+  dataBtn.className = 'rt-data'; dataBtn.type = 'button'; dataBtn.textContent = 'Data';
   dataBtn.setAttribute('aria-expanded', 'false');
-  dataBtn.addEventListener('click', () => {
-    const on = root.classList.toggle('show-credits');
-    dataBtn.setAttribute('aria-expanded', String(on));
-  });
-  creditBox.appendChild(dataBtn);
+  dataBtn.addEventListener('click', () => dataBtn.setAttribute('aria-expanded', String(root.classList.toggle('show-credits'))));
+  viewer.cesiumWidget.creditContainer.appendChild(dataBtn);
 
+  let tiles;
   try {
-    const tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
+    tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
     scene.primitives.add(tiles);
     let warned = false;
     tiles.tileFailed.addEventListener(err => {
@@ -327,175 +285,164 @@ async function start() {
     return fail(KEY_MSG);
   }
 
-  /* ---------- route geometry ---------- */
-  const cartAt = t => { const p = lngLatAt(t); return C.Cartesian3.fromDegrees(p[0], p[1], altM(t)); };
-  const STEP = 4, samples = [];
-  for (let s = 0; s < TOTAL_T; s += STEP) samples.push(cartAt(s));
-  samples.push(cartAt(TOTAL_T));
-
-  let t = 0;
-  const RED = C.Color.fromCssColorString('#e8453c');         // in-flight progress glow
-  const BRAND = C.Color.fromCssColorString('#680f02');       // Redtail red
-  const CREAM = C.Color.fromCssColorString('#f3eee7');
-
-  const baseLine = viewer.entities.add({ show: false, polyline: {
-    positions: samples, width: 3,
-    material: C.Color.WHITE.withAlpha(0.32)
-  }});
-  const progLine = viewer.entities.add({ show: false, polyline: {
-    positions: new C.CallbackProperty(() => samples.slice(0, Math.floor(t / STEP) + 1).concat([cartAt(t)]), false),
-    width: 10,
-    material: new C.PolylineGlowMaterialProperty({ color: RED, glowPower: 0.22, taperPower: 1 })
-  }});
-  /* Start screen: the whole route in solid Redtail red */
-  const introLine = viewer.entities.add({ polyline: {
-    positions: samples, width: 6,
-    material: new C.PolylineOutlineMaterialProperty({ color: BRAND, outlineColor: CREAM, outlineWidth: 1.5 })
-  }});
-  function leaveIntro() {
-    if (!introLine.show) return;
-    introLine.show = false; baseLine.show = true; progLine.show = true;
+  /* ---------- landmark positions (ground height measured from the 3D imagery) ---------- */
+  const pts = STOPS.concat([CONFIG.home]);
+  pts.forEach(p => { p.h = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
+  const setH = (p, h) => { if (isFinite(h)) { p.h = h; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, h); } };
+  if (scene.sampleHeightMostDetailed) {
+    scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)))
+      .then(res => res.forEach((c, i) => c && setH(pts[i], c.height)))
+      .catch(e => console.warn('Height sampling failed', e));
   }
-  viewer.entities.add({
-    position: C.Cartesian3.fromDegrees(W[0][0], W[0][1], CONFIG.fieldElevationFt * 0.3048 + GEOID_M + 20),
-    point: { pixelSize: 9, color: BRAND, outlineColor: C.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+
+  /* ---------- labels ---------- */
+  let current = -1; // -1 = overview
+  const RED = C.Color.fromCssColorString('#d42a2f');
+  const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.78)');
+  const FONT = '"Barlow Semi Condensed", sans-serif';
+  STOPS.forEach((s, i) => viewer.entities.add({
+    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => s.pos, false),
+    point: {
+      pixelSize: new C.CallbackProperty(() => i === current ? 12 : 8, false),
+      color: new C.CallbackProperty(() => i === current ? RED : C.Color.WHITE, false),
+      outlineColor: new C.CallbackProperty(() => i === current ? C.Color.WHITE : RED, false),
+      outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY
+    },
     label: {
-      text: CONFIG.homeLabel, font: '600 14px "Barlow Semi Condensed", sans-serif',
-      fillColor: C.Color.WHITE, showBackground: true, backgroundColor: BRAND.withAlpha(0.95),
-      backgroundPadding: new C.Cartesian2(10, 6), verticalOrigin: C.VerticalOrigin.BOTTOM,
-      pixelOffset: new C.Cartesian2(0, -12), disableDepthTestDistance: Number.POSITIVE_INFINITY
+      text: s.name,
+      font: new C.CallbackProperty(() => (i === current ? '700 17px ' : '600 13px ') + FONT, false),
+      fillColor: C.Color.WHITE, showBackground: true,
+      backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
+      backgroundPadding: new C.Cartesian2(9, 5),
+      verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    }
+  }));
+  const home = CONFIG.home;
+  viewer.entities.add({
+    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => home.pos, false),
+    point: { pixelSize: 9, color: C.Color.WHITE, outlineColor: C.Color.fromCssColorString('#3a2a22'), outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: {
+      text: '✈ ' + home.name, font: '600 13px ' + FONT, fillColor: C.Color.WHITE, showBackground: true,
+      backgroundColor: DARK, backgroundPadding: new C.Cartesian2(9, 5),
+      verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
     }
   });
 
-  /* ---------- the plane (scaled up so it reads from a distance) ---------- */
-  let planeTrack = trackAt(0, 30), planeCart = cartAt(0), planeEnu = C.Transforms.eastNorthUpToFixedFrame(planeCart);
-  let planeRoll = 0;
-  const orient = new C.CallbackProperty(() =>
-    C.Transforms.headingPitchRollQuaternion(planeCart, new C.HeadingPitchRoll(rad(planeTrack) - Math.PI / 2, 0, planeRoll)), false);
-  const PosProp = C.CallbackPositionProperty || C.CallbackProperty;
-  viewer.entities.add({
-    position: new PosProp(() => planeCart, false),
-    orientation: orient,
-    model: { uri: CONFIG.modelUrl, scale: CONFIG.planeScale, minimumPixelSize: 48, runAnimations: false,
-      nodeTransformations: { Propeller: new C.CallbackProperty(() => propTRS, false) } }
+  /* ---------- camera ---------- */
+  const center = { lat: 0, lon: 0 };
+  pts.forEach(p => { center.lat += p.lat / pts.length; center.lon += p.lon / pts.length; });
+  let spread = 0; pts.forEach(p => spread = Math.max(spread, km(center, p)));
+  const OVERVIEW = { yaw: -15, pitch: -48, range: spread * 1000 * 2.3 };
+
+  const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1, ovYaw: 0, ovPitch: OVERVIEW.pitch, ovZoom: 1 };
+  let phase = 'overview';  // 'overview' | 'fly' | 'orbit'
+  let orbitStart = 0, orbitAngle = 0, flight = null;
+
+  const overviewPose = () => ({
+    target: C.Cartesian3.fromDegrees(center.lon, center.lat, DEFAULT_H),
+    heading: OVERVIEW.yaw + user.ovYaw, pitch: user.ovPitch, range: OVERVIEW.range * user.ovZoom
   });
-  /* Propeller spins while flying (the hub node rotates about the shaft, which is the model's forward axis) */
-  const propTRS = new C.TranslationRotationScale();
-  let propAngle = 0, propSpeed = 0, propLast = performance.now();
-  scene.preRender.addEventListener(() => {
-    const now = performance.now(), dt = Math.min((now - propLast) / 1000, 0.1); propLast = now;
-    propSpeed += ((playing ? 1 : 0) - propSpeed) * (1 - Math.exp(-dt * 2.5));   // spool up and down
-    propAngle = (propAngle + dt * propSpeed * 2 * Math.PI * 3.3) % (2 * Math.PI);
-    propTRS.rotation = C.Quaternion.fromAxisAngle(C.Cartesian3.UNIT_Z, propAngle, propTRS.rotation);
+  const orbitPose = i => ({
+    target: STOPS[i].pos,
+    heading: orbitStart + orbitAngle + user.yaw, pitch: user.pitch, range: STOPS[i].range * user.zoom
   });
 
-  function updatePlane() {
-    planeCart = cartAt(t);
-    planeEnu = C.Transforms.eastNorthUpToFixedFrame(planeCart);
-    planeTrack = trackAt(t, 4);
-    const turn = angDiff(trackAt(Math.max(0, t - 8), 4), trackAt(Math.min(TOTAL_T, t + 8), 4)) / 16;   // deg per second
-    planeRoll = rad(clamp(turn * 11, -40, 40));
-    const { i, f } = legAt(t);
-    const d = (cumNm[i] + legNm[i] * f) * MI, pct = (t / TOTAL_T * 100).toFixed(2) + '%';
-    $('dist').textContent = Math.round(d);
-    $('mdist').textContent = Math.round(d);
-    $('scrub').value = t;
-    $('scrub').style.setProperty('--p', pct);
-    $('mbar').style.width = pct;
-  }
-
-  /* ---------- camera: always orbits a target (the plane, or the whole route) ---------- */
-  /* Overview: straight down, north up, framed to fit the whole route above the control panel */
-  const lats = W.map(p => p[1]), lngs = W.map(p => p[0]);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-  const midLat = (minLat + maxLat) / 2, midLng = (minLng + maxLng) / 2;
-  const nsHalf = (maxLat - minLat) * 111320 / 2, ewHalf = (maxLng - minLng) * 111320 * Math.cos(rad(midLat)) / 2;
-  const routeCenter = C.Cartesian3.fromDegrees(midLng, midLat - (maxLat - minLat) * 0.07, CONFIG.fieldElevationFt * 0.3048);
-  const TOP_PITCH = -89.5;
-  function fitRange() {
-    const fov = camera.frustum.fov || rad(60), w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, a = w / h;
-    const vHalf = a >= 1 ? Math.atan(Math.tan(fov / 2) / a) : fov / 2;
-    const hHalf = a >= 1 ? fov / 2 : Math.atan(Math.tan(fov / 2) * a);
-    return Math.max(nsHalf / Math.tan(vHalf), ewHalf / Math.tan(hHalf)) * 1.32;
-  }
-  const canvas = viewer.canvas;
-  const views = {
-    plane: { yaw: 0, pitch: CONFIG.chasePitchDeg, range: CONFIG.chaseRangeM, min: 150, max: 9000 },
-    route: { yaw: 0, pitch: TOP_PITCH, range: fitRange(), min: 2500, max: 200000 }
-  };
-  let mode = 'route', smTrack = trackAt(15, 15), tween = null;
-
-  function viewPose(m) {
-    const v = views[m];
-    return m === 'plane'
-      ? { target: planeCart, heading: smTrack + v.yaw, pitch: v.pitch, range: v.range }
-      : { target: routeCenter, heading: v.yaw, pitch: v.pitch, range: v.range };
-  }
-  function currentPose() {
-    const to = viewPose(mode);
-    if (!tween) return to;
-    const u = clamp((performance.now() - tween.t0) / tween.dur, 0, 1), e = 1 - Math.pow(1 - u, 3);
-    if (u >= 1) tween = null;
-    const f = tween ? tween.from : to;
+  function pose(now) {
+    if (phase === 'toOverview') return lastPose;
+    if (phase === 'overview') return overviewPose();
+    if (phase === 'orbit') return orbitPose(current);
+    const u = clamp((now - flight.t0) / flight.dur, 0, 1), e = ease(u);
+    const to = orbitPose(current), f = flight.from;
+    const lr = Math.log(f.range) + (Math.log(to.range) - Math.log(f.range)) * e + Math.sin(Math.PI * u) * flight.hop;
+    if (u >= 1) { phase = 'orbit'; }
     return {
       target: C.Cartesian3.lerp(f.target, to.target, e, new C.Cartesian3()),
       heading: f.heading + angDiff(f.heading, to.heading) * e,
       pitch: f.pitch + (to.pitch - f.pitch) * e,
-      range: Math.exp(Math.log(f.range) + (Math.log(to.range) - Math.log(f.range)) * e)
+      range: Math.exp(lr)
     };
   }
-  function setMode(m, animate) {
-    if (m === mode) return;
-    const from = currentPose();
-    mode = m;
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    tween = animate && !reduce ? { from, t0: performance.now(), dur: 1600 } : null;
-  }
-  let fitted = true, lastW = canvas.clientWidth, lastH = canvas.clientHeight;
+  let lastPose = overviewPose();
   scene.preRender.addEventListener(() => {
-    if (fitted && mode === 'route' && (canvas.clientWidth !== lastW || canvas.clientHeight !== lastH)) {
-      lastW = canvas.clientWidth; lastH = canvas.clientHeight; views.route.range = fitRange();
-    }
-    const p = currentPose();
+    const p = pose(performance.now());
+    lastPose = p;
     camera.lookAtTransform(C.Transforms.eastNorthUpToFixedFrame(p.target),
       new C.HeadingPitchRange(rad(p.heading), rad(p.pitch), p.range));
   });
 
+  const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function flyTo(i) {
+    const from = lastPose;
+    const prev = current >= 0 ? STOPS[current] : center;
+    current = i;
+    orbitStart = bearing(prev, STOPS[i]);
+    if (current >= 0 && prev === STOPS[i]) orbitStart = from.heading;
+    orbitAngle = 0; user.yaw = 0;
+    const dist = km(prev, STOPS[i]);
+    const dur = reduceMotion() ? 1 : clamp(2600 + dist * 260, 3000, 9000) / Number($('speed').value || 1);
+    flight = { from, t0: performance.now(), dur, hop: clamp(dist / 12, 0, 1.1) };
+    phase = 'fly';
+    updateUI();
+  }
+  function toOverview() {
+    const from = lastPose;
+    current = -1;
+    const t0 = performance.now(), dur = reduceMotion() ? 1 : 3200;
+    phase = 'toOverview';
+    const step = () => {
+      if (phase !== 'toOverview') return;
+      const u = clamp((performance.now() - t0) / dur, 0, 1), e = ease(u);
+      const tgt = overviewPose();
+      lastPose = {
+        target: C.Cartesian3.lerp(from.target, tgt.target, e, new C.Cartesian3()),
+        heading: from.heading + angDiff(from.heading, tgt.heading) * e,
+        pitch: from.pitch + (tgt.pitch - from.pitch) * e,
+        range: Math.exp(Math.log(from.range) + (Math.log(tgt.range) - Math.log(from.range)) * e)
+      };
+      if (u >= 1) { phase = 'overview'; return; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    updateUI();
+  }
+
   /* ---------- touch / mouse: one finger turns and tilts, two fingers zoom ---------- */
-  const pts = new Map();
+  const canvas = viewer.canvas, ptrs = new Map();
   let pinch0 = 0;
   const hideHint = () => $('hint').classList.add('gone');
   setTimeout(hideHint, 6000);
-  const pinchDist = () => { const a = [...pts.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
-  const settleTween = () => { if (tween) { const p = currentPose(); tween = null; const v = views[mode];
-    v.pitch = p.pitch; v.range = p.range; v.yaw = mode === 'plane' ? angDiff(smTrack, p.heading) : p.heading; } };
-
+  const pinchDist = () => { const a = [...ptrs.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
+  const ov = () => phase === 'overview' || phase === 'toOverview';
   canvas.addEventListener('pointerdown', e => {
-    hideHint(); settleTween(); fitted = false;
+    hideHint();
     canvas.setPointerCapture(e.pointerId);
-    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pts.size === 2) pinch0 = pinchDist();
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 2) pinch0 = pinchDist();
   });
   canvas.addEventListener('pointermove', e => {
-    const p = pts.get(e.pointerId);
+    const p = ptrs.get(e.pointerId);
     if (!p) return;
     const dx = e.clientX - p.x, dy = e.clientY - p.y;
     p.x = e.clientX; p.y = e.clientY;
-    const v = views[mode];
-    if (pts.size === 1) {
-      v.yaw += dx * 0.3;
-      v.pitch = clamp(v.pitch + dy * 0.25, TOP_PITCH, -3);
-    } else if (pts.size === 2) {
+    if (ptrs.size === 1) {
+      if (ov()) { user.ovYaw -= dx * 0.3; user.ovPitch = clamp(user.ovPitch - dy * 0.25, -89, -5); }
+      else { user.yaw -= dx * 0.3; user.pitch = clamp(user.pitch - dy * 0.25, -89, -3); }
+    } else if (ptrs.size === 2) {
       const d = pinchDist();
-      if (pinch0 > 0 && d > 0) v.range = clamp(v.range * (pinch0 / d), v.min, v.max);
+      if (pinch0 > 0 && d > 0) {
+        const f = pinch0 / d;
+        if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
+        else user.zoom = clamp(user.zoom * f, 0.15, 4);
+      }
       pinch0 = d;
     }
   });
-  const lift = e => { pts.delete(e.pointerId); pinch0 = pts.size === 2 ? pinchDist() : 0; };
+  const lift = e => { ptrs.delete(e.pointerId); pinch0 = ptrs.size === 2 ? pinchDist() : 0; };
   canvas.addEventListener('pointerup', lift);
   canvas.addEventListener('pointercancel', lift);
   canvas.addEventListener('contextmenu', e => e.preventDefault());
-
   let toastTimer;
   canvas.addEventListener('wheel', e => {
     if (!(e.ctrlKey || e.metaKey)) {
@@ -505,63 +452,79 @@ async function start() {
       toastTimer = setTimeout(() => $('toast').classList.remove('on'), 1400);
       return;
     }
-    e.preventDefault(); hideHint(); settleTween(); fitted = false;
-    const v = views[mode];
-    v.range = clamp(v.range * Math.exp(e.deltaY * 0.004), v.min, v.max);
+    e.preventDefault(); hideHint();
+    const f = Math.exp(e.deltaY * 0.004);
+    if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
+    else user.zoom = clamp(user.zoom * f, 0.15, 4);
   }, { passive: false });
 
-  /* ---------- playback ---------- */
+  /* ---------- tour playback ---------- */
   let playing = false, last = null;
-
   function setPlaying(on) {
     playing = on;
     root.classList.toggle('playing', on);
     root.classList.toggle('min', on);
     $('playIcon').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
-    $('play').setAttribute('aria-label', on ? 'Pause' : 'Fly the route');
+    $('play').setAttribute('aria-label', on ? 'Pause the tour' : (current >= 0 ? 'Resume the tour' : 'Start the tour'));
+    const mp = $('mpause');
+    mp.querySelector('svg').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+    mp.setAttribute('aria-label', on ? 'Pause' : 'Play');
+    if (on) { last = null; requestAnimationFrame(tick); }
   }
-  function loop(ts) {
-    if (!playing) { last = null; return; }
-    if (last !== null) {
+  function tick(ts) {
+    if (!playing) return;
+    if (last !== null && phase === 'orbit') {
       const dt = Math.min((ts - last) / 1000, 0.1);
-      t = Math.min(TOTAL_T, t + dt * Number($('speed').value));
-      updatePlane();
-      const target = trackAt(Math.min(t + 15, TOTAL_T), 15);
-      smTrack = (smTrack + angDiff(smTrack, target) * (1 - Math.exp(-dt * 1.6)) + 360) % 360;
-      if (t >= TOTAL_T) { setPlaying(false); last = null; return; }
+      orbitAngle += dt * 360 / CONFIG.orbitSeconds * Number($('speed').value || 1);
+      ring();
+      if (orbitAngle >= 360) {
+        if (current < N - 1) flyTo(current + 1);
+        else { setPlaying(false); toOverview(); }
+      }
     }
     last = ts;
-    requestAnimationFrame(loop);
+    if (playing) requestAnimationFrame(tick);
   }
-  function play() {
-    leaveIntro();
-    if (t >= TOTAL_T) { t = 0; updatePlane(); smTrack = trackAt(15, 15); }
-    if (mode !== 'plane') { smTrack = trackAt(Math.min(t + 15, TOTAL_T), 15); setMode('plane', true); }
-    setPlaying(true);
-    last = null;
-    requestAnimationFrame(loop);
+  function ring() {
+    const f = phase === 'orbit' ? clamp(orbitAngle / 360, 0, 1) : 0;
+    $('ring').setAttribute('stroke-dashoffset', String(56.55 * (1 - f)));
   }
-  function pause() { setPlaying(false); }
 
-  $('play').addEventListener('click', () => playing ? pause() : play());
-  $('mpause').addEventListener('click', pause);
+  function updateUI() {
+    const on = current >= 0;
+    $('now').classList.toggle('off', !on);
+    if (on) {
+      $('nowNum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
+      $('nowName').textContent = STOPS[current].name;
+      $('mnum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
+      $('mname').textContent = STOPS[current].name;
+      $('subtitle').textContent = 'Stop ' + (current + 1) + ' of ' + N + ': ' + STOPS[current].name;
+    } else {
+      $('subtitle').textContent = CONFIG.subtitle;
+      $('mnum').textContent = 'Overview'; $('mname').textContent = CONFIG.title;
+    }
+    chips.forEach((c, i) => c.classList.toggle('on', i === current));
+    if (on) chips[current].scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+    ring();
+  }
+
+  function play() {
+    if (current < 0 || phase === 'overview' || phase === 'toOverview') flyTo(current < 0 ? 0 : current);
+    setPlaying(true);
+  }
+  function go(i) { flyTo(clamp(i, 0, N - 1)); }
+
+  $('play').addEventListener('click', () => playing ? setPlaying(false) : play());
+  $('mpause').addEventListener('click', () => playing ? setPlaying(false) : play());
   $('expand').addEventListener('click', () => root.classList.remove('min'));
   $('collapse').addEventListener('click', () => root.classList.add('min'));
-  function overview() {
-    pause();
-    const from = currentPose();
-    Object.assign(views.route, { yaw: 0, pitch: TOP_PITCH, range: fitRange() });
-    fitted = true; mode = 'route';
-    tween = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : { from, t0: performance.now(), dur: 1600 };
-  }
-  $('overview').addEventListener('click', overview);
-  $('scrub').addEventListener('input', e => {
-    t = Number(e.target.value);
-    updatePlane();
-    if (!playing) smTrack = trackAt(Math.min(t + 15, TOTAL_T), 15);
-  });
+  $('next').addEventListener('click', () => go(current + 1));
+  $('mnext').addEventListener('click', () => go(current + 1));
+  $('prev').addEventListener('click', () => go(current - 1));
+  $('overview').addEventListener('click', () => { setPlaying(false); toOverview(); });
+  chips.forEach((c, i) => c.addEventListener('click', () => go(i)));
 
-  updatePlane();
+  updateUI();
 }
 
 loadLib(0);
