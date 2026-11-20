@@ -336,7 +336,7 @@ function centerChip(i) {
 
 /* ---------- app state shared between the controls and the 3D map ---------- */
 const app = { ready: false, current: -1, selected: 0, phase: 'explore', playing: false,
-              flyTo: null, updateUI: null, onSpeechDone: null };
+              flyTo: null, updateUI: null, onSpeechDone: null, speakCurrent: null };
 
 /* ---------- voice narration (built into the browser; no extra service) ---------- */
 const synth = window.speechSynthesis;
@@ -368,6 +368,11 @@ function speak(text, idx, onEnd) {
     };
     synth.speak(u);
   });
+}
+let unlocked = false;
+function unlockSpeech() {          // iPhones only allow speech after a tap; a silent utterance on the first tap enables it
+  if (!canSpeak || unlocked) return;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); unlocked = true; } catch (e) {}
 }
 function stopSpeaking() {
   speakToken++;
@@ -412,9 +417,9 @@ $('sheetListen').addEventListener('click', () => {
 if (canSpeak) {
   $('narrate').addEventListener('click', () => {
     narrate = !narrate;
+    unlocked = true;
     if (!narrate) stopSpeaking();
-    else if (app.playing && app.phase === 'orbit' && app.current >= 0) speak(stopText(STOPS[app.current]), app.current, () => app.onSpeechDone && app.onSpeechDone());
-    else speak('Narration on.', -1);
+    else if (!(app.speakCurrent && app.speakCurrent())) speak('Narration on.', -1);
     updateVoiceUI();
   });
 } else {
@@ -515,6 +520,10 @@ async function start() {
   const home = CONFIG.home;
   const pts = STOPS.concat([home]);
   pts.forEach(p => { p.h = p.hT = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
+  scene.preUpdate.addEventListener(() => fadeA.forEach((a, i) => {
+    const target = (i === current && phase === 'orbit') ? 0 : 1;
+    if (Math.abs(target - a) > 0.002) fadeA[i] = a + (target - a) * 0.06;
+  }));
   scene.preUpdate.addEventListener(() => pts.forEach(p => {
     if (Math.abs(p.hT - p.h) < 0.5) return;
     p.h += (p.hT - p.h) * 0.05;
@@ -530,6 +539,7 @@ async function start() {
 
   /* ---------- labels (tap to learn more) ---------- */
   let current = -1;
+  const fadeA = STOPS.map(() => 1);
   const sync = () => { app.current = current; app.phase = phase; app.playing = playing; if (current >= 0) app.selected = current; };
   const RED = C.Color.fromCssColorString('#d42a2f');
   const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.8)');
@@ -540,18 +550,19 @@ async function start() {
     const ent = viewer.entities.add({
       position: new PosProp(() => s.pos, false),
       point: {
-        show: new C.CallbackProperty(() => !(i === current && phase === 'orbit'), false),
+        show: new C.CallbackProperty(() => fadeA[i] > 0.02, false),
         pixelSize: new C.CallbackProperty(() => i === current ? 12 : 9, false),
-        color: new C.CallbackProperty(() => i === current ? RED : C.Color.WHITE, false),
-        outlineColor: new C.CallbackProperty(() => i === current ? C.Color.WHITE : RED, false),
+        color: new C.CallbackProperty(() => (i === current ? RED : C.Color.WHITE).withAlpha(fadeA[i]), false),
+        outlineColor: new C.CallbackProperty(() => (i === current ? C.Color.WHITE : RED).withAlpha(fadeA[i]), false),
         outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY
       },
       label: {
-        show: new C.CallbackProperty(() => !(i === current && phase === 'orbit'), false),
+        show: new C.CallbackProperty(() => fadeA[i] > 0.02, false),
         text: s.name,
         font: '700 30px ' + FONT, scale: new C.CallbackProperty(() => i === current ? 0.6 : 0.5, false),
-        fillColor: C.Color.WHITE, style: C.LabelStyle.FILL, showBackground: true,
-        backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
+        fillColor: new C.CallbackProperty(() => C.Color.WHITE.withAlpha(fadeA[i]), false),
+        style: C.LabelStyle.FILL, showBackground: true,
+        backgroundColor: new C.CallbackProperty(() => (i === current ? RED : DARK).withAlpha((i === current ? 1 : 0.8) * fadeA[i]), false),
         backgroundPadding: new C.Cartesian2(20, 12),
         verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
         disableDepthTestDistance: Number.POSITIVE_INFINITY
@@ -576,7 +587,7 @@ async function start() {
     const px = x - r.left, py = y - r.top;
     let best = -1, bestD = Infinity;
     STOPS.forEach((s, i) => {
-      if (i === current && phase === 'orbit') return;
+      if (fadeA[i] < 0.5) return;
       const p = toScreen(scene, s.pos);
       if (!p) return;
       const sc = i === current ? 0.6 : 0.5;
@@ -634,7 +645,11 @@ async function start() {
     phase = 'explore';
   }
 
+  let lastFrame = performance.now();
   scene.preRender.addEventListener(() => {
+    const nowT = performance.now(), fdt = Math.min((nowT - lastFrame) / 1000, 0.1);
+    lastFrame = nowT;
+    if (phase === 'orbit') { orbitAngle += fdt * 360 / CONFIG.orbitSeconds; if (!playing) ring(); }
     if (phase === 'explore') return applyPose(free);
     if (phase === 'orbit') return applyPose(orbitPose(current));
     const u = clamp((performance.now() - anim.t0) / anim.dur, 0, 1);
@@ -660,7 +675,7 @@ async function start() {
     else orbitStart = from.heading;
     const dist = C.Cartesian3.distance(from.target, STOPS[i].pos) / 1000;
     const fromHigh = from.range > STOPS[i].range * 2.5;
-    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000);
+    const dur = reduceMotion() ? 1 : clamp(2000 + dist * 160, 2400, 6000);
     const hop = fromHigh ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
     anim = { from, t0: performance.now(), dur, hop };
     phase = 'fly'; arrived = false;
@@ -699,14 +714,18 @@ async function start() {
   function onArrive() {
     if (arrived) return;
     arrived = true;
-    if (narrate && playing) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); }
+    if (narrate) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); }
     else speechDone = true;
   }
   app.onSpeechDone = () => { speechDone = true; };
+  app.speakCurrent = () => {
+    if (phase === 'orbit' && current >= 0) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); return true; }
+    return false;
+  };
   function setPlaying(on) {
     playing = on;
-    if (!on && narrate) stopSpeaking();
-    if (on && narrate && phase === 'orbit' && current >= 0) { speechDone = false; speak(stopText(STOPS[current]), current, () => { speechDone = true; }); }
+    if (!on && narrate && speaking) { stopSpeaking(); speechDone = false; }
+    if (on && narrate && phase === 'orbit' && current >= 0 && !speechDone) speak(stopText(STOPS[current]), current, () => { speechDone = true; });
     sync();
     root.classList.toggle('playing', on);
     root.classList.toggle('min', on);
@@ -720,8 +739,6 @@ async function start() {
   function tick(ts) {
     if (!playing) return;
     if (last !== null && phase === 'orbit') {
-      const dt = Math.min((ts - last) / 1000, 0.1);
-      orbitAngle += dt * 360 / CONFIG.orbitSeconds;
       ring();
       if (orbitAngle >= 360 && (!narrate || speechDone || !speaking)) {
         if (current < N - 1) flyTo(current + 1);
@@ -750,13 +767,14 @@ async function start() {
   }
 
   function play() {
+    unlockSpeech();
     hideInfo();
     $('intro').classList.add('gone');
     if (phase === 'explore' || phase === 'toTop' || current < 0) flyTo(app.selected);
     setPlaying(true);
   }
-  const next = () => flyTo((current >= 0 ? current : app.selected - 1) + 1);
-  const prev = () => flyTo((current >= 0 ? current : app.selected + 1) - 1);
+  const next = () => unlockSpeech() || flyTo((current >= 0 ? current : app.selected - 1) + 1);
+  const prev = () => unlockSpeech() || flyTo((current >= 0 ? current : app.selected + 1) - 1);
 
   $('play').addEventListener('click', () => playing ? setPlaying(false) : play());
   $('mpause').addEventListener('click', () => playing ? setPlaying(false) : play());
@@ -766,7 +784,7 @@ async function start() {
   $('mnext').addEventListener('click', next);
   $('prev').addEventListener('click', prev);
   $('overview').addEventListener('click', () => { setPlaying(false); hideInfo(); toTop(); });
-  chips.forEach((c, i) => c.addEventListener('click', () => { flyTo(i); showInfo(i); }));
+  chips.forEach((c, i) => c.addEventListener('click', () => { unlockSpeech(); hideInfo(); flyTo(i); }));
 
   app.flyTo = i => { hideInfo(); flyTo(i); };
   app.updateUI = updateUI;
