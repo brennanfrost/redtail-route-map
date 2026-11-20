@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Canyonlands Airplane Tour – Redtail Air</title>
+<style>html,body{margin:0;height:100%;background:#3a2a22}#redtail-route{--rt-height:100svh;--rt-radius:0}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+#redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:440px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#redtail-route *{box-sizing:border-box}
+#redtail-route #rt-map{position:absolute;inset:0}
+#redtail-route #rt-map canvas{touch-action:none;cursor:grab}
+#redtail-route #rt-map canvas:active{cursor:grabbing}
+#redtail-route .cesium-viewer-bottom{top:8px;bottom:auto;left:8px;right:auto;padding:0;max-width:calc(100% - 16px)}
+#redtail-route .cesium-widget-credits{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font:500 10px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.9)}
+#redtail-route .cesium-credit-logoContainer{display:inline-flex;align-items:center;margin:0;padding:0}
+#redtail-route .cesium-credit-logoContainer a[href*="cesium.com"]{display:none!important}
+#redtail-route .cesium-credit-logoContainer img{height:16px!important;width:auto!important}
+#redtail-route .cesium-credit-expand-link{display:none!important}
+#redtail-route .cesium-credit-textContainer{display:none;flex-basis:100%;max-width:340px;padding:6px 9px;border-radius:8px;background:rgba(24,19,16,.82)}
+#redtail-route.show-credits .cesium-credit-textContainer{display:block}
+#redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
+#redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
+
+#redtail-route .now{position:absolute;left:50%;top:40px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:8px 16px 9px;border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--rim);text-align:center;pointer-events:none;transition:opacity .35s ease,transform .35s var(--ease)}
+#redtail-route .now.off{opacity:0;transform:translate(-50%,-8px)}
+#redtail-route .now small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.04em}
+#redtail-route .now b{display:block;font-size:1.35rem;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+#redtail-route .panel{position:absolute;left:10px;right:10px;bottom:10px;margin:0 auto;max-width:720px;padding:12px 12px 10px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:transform .45s var(--ease),opacity .3s ease}
+#redtail-route.min .panel{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
+#redtail-route .top{display:flex;align-items:center;gap:12px}
+#redtail-route .play{flex-shrink:0;width:54px;height:54px;padding:0;margin:0;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 6px 16px rgba(212,42,47,.45);transition:transform .15s,background .15s;touch-action:manipulation}
+#redtail-route .play:active{transform:scale(.94)}
+#redtail-route .play:hover{background:var(--red-hi)}
+#redtail-route .play svg{width:22px;height:22px}
+#redtail-route .titles{flex:1;min-width:0}
+#redtail-route .rt-h{margin:0;font-size:1.2rem;font-weight:700;line-height:1.15}
+#redtail-route .sub{margin:1px 0 0;font-size:.92rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+#redtail-route .icon{flex-shrink:0;width:38px;height:38px;padding:0;margin:0;border:1px solid var(--rim);border-radius:50%;background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
+#redtail-route .icon:hover{background:rgba(255,255,255,.2)}
+#redtail-route .icon svg{width:16px;height:16px}
+#redtail-route .collapse{display:none}
+#redtail-route.playing .collapse{display:grid}
+#redtail-route .chips{display:flex;gap:6px;overflow-x:auto;margin:10px -12px 0;padding:2px 12px 4px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#redtail-route .chips::-webkit-scrollbar{display:none}
+#redtail-route .chip{flex-shrink:0;scroll-snap-align:start;font:600 .92rem var(--font);color:#fff;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid var(--rim);border-radius:999px;padding:7px 12px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .chip i{font-style:normal;color:var(--muted);margin-right:5px;font-variant-numeric:tabular-nums}
+#redtail-route .chip:hover{background:rgba(255,255,255,.18)}
+#redtail-route .chip.on{background:var(--red);border-color:var(--red)}
+#redtail-route .chip.on i{color:rgba(255,255,255,.85)}
+#redtail-route .foot{display:flex;align-items:center;gap:8px;margin-top:8px}
+#redtail-route .foot .spacer{flex:1}
+#redtail-route .foot select,#redtail-route .foot .ghost{font:600 .92rem var(--font);color:#fff;background-color:rgba(255,255,255,.1);border:1px solid var(--rim);border-radius:10px;min-height:36px;margin:0;cursor:pointer;touch-action:manipulation}
+#redtail-route .foot select{-webkit-appearance:none;appearance:none;padding:0 26px 0 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
+#redtail-route .foot select option{color:#000}
+#redtail-route .foot .ghost{padding:0 12px}
+#redtail-route .foot select:hover,#redtail-route .foot .ghost:hover{background-color:rgba(255,255,255,.18)}
+
+#redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),420px);display:flex;align-items:center;gap:8px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.3);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
+#redtail-route.min .mini{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#redtail-route .mini .mplay{flex-shrink:0;width:42px;height:42px;padding:0;margin:0;border:0;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer}
+#redtail-route .mini .mplay svg{width:18px;height:18px}
+#redtail-route .mtext{flex:1;min-width:0;line-height:1.15}
+#redtail-route .mtext small{display:block;font-size:.78rem;color:var(--muted);font-weight:600}
+#redtail-route .mtext b{display:block;font-size:1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#redtail-route .mring{flex-shrink:0;width:22px;height:22px;transform:rotate(-90deg)}
+
+#redtail-route .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 40px);padding:9px 16px;border-radius:999px;background:rgba(24,19,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:1rem;font-weight:600;text-align:center;pointer-events:none;transition:opacity .5s}
+#redtail-route .hint.gone{opacity:0}
+#redtail-route .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:7px 13px;border-radius:999px;background:rgba(24,19,16,.82);font-size:.92rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s}
+#redtail-route .toast.on{opacity:1}
+#redtail-route :focus-visible{outline:3px solid #ffd27a;outline-offset:2px}
+#redtail-route .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#redtail-route .fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:1.05rem;line-height:1.45;padding:24px;text-align:center;background:#3a2a22;z-index:5}
+@media (min-width:700px){
+#redtail-route .panel{left:16px;right:16px;bottom:16px;padding:14px 16px 12px}
+#redtail-route .chips{margin:12px -16px 0;padding:2px 16px 4px}
+#redtail-route .play{width:60px;height:60px}
+#redtail-route .rt-h{font-size:1.4rem}
+#redtail-route .now b{font-size:1.6rem}
+#redtail-route .mini{bottom:16px}
+}
+@media (prefers-reduced-motion:reduce){#redtail-route .panel,#redtail-route .mini,#redtail-route .hint,#redtail-route .now{transition:none}}
+</style>
+<div id="redtail-route">
+  <div id="rt-map"></div>
+  <div class="now off" id="rt-now" aria-live="polite"><small id="rt-nowNum"></small><b id="rt-nowName"></b></div>
+  <div class="hint" id="rt-hint"></div>
+  <div class="toast" id="rt-toast"></div>
+
+  <div class="panel" id="rt-panel">
+    <div class="top">
+      <button class="play" id="rt-play" aria-label="Start the tour">
+        <svg id="rt-playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
+      </button>
+      <div class="titles">
+        <p class="rt-h" id="rt-title"></p>
+        <p class="sub" id="rt-subtitle"></p>
+      </div>
+      <button class="icon collapse" id="rt-collapse" aria-label="Minimize controls">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+    </div>
+    <div class="chips" id="rt-chips" role="list"></div>
+    <div class="foot">
+      <button class="icon" id="rt-prev" aria-label="Previous stop">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+      <button class="icon" id="rt-next" aria-label="Next stop">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+      <span class="spacer"></span>
+      <label class="sr" for="rt-speed">Tour speed</label>
+      <select id="rt-speed">
+        <option value="0.6">Relaxed</option>
+        <option value="1" selected>Normal</option>
+        <option value="1.8">Quick</option>
+      </select>
+      <button class="ghost" id="rt-overview">Overview</button>
+    </div>
+  </div>
+
+  <div class="mini" id="rt-mini">
+    <button class="mplay" id="rt-mpause" aria-label="Pause">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg>
+    </button>
+    <svg class="mring" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3"/><circle id="rt-ring" cx="11" cy="11" r="9" fill="none" stroke="#e8453c" stroke-width="3" stroke-linecap="round" stroke-dasharray="56.55" stroke-dashoffset="56.55"/></svg>
+    <div class="mtext"><small id="rt-mnum"></small><b id="rt-mname"></b></div>
+    <button class="icon" id="rt-mnext" aria-label="Next stop">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+    </button>
+    <button class="icon" id="rt-expand" aria-label="Show controls">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l4-4 4 4"/></svg>
+    </button>
+  </div>
+</div>
+<script>
+(function () {
+/* ================= SETTINGS ================= */
+const CONFIG = {
+  googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
+  title: 'Canyonlands Airplane Tour',
+  subtitle: 'Fly to each landmark on the tour',
+  orbitSeconds: 20,      // one full 360° circle at Normal speed
+  orbitPitchDeg: -28,    // camera tilt while circling (negative = looking down)
+  home: { name: 'Canyonlands Field (KCNY)', lat: 38.757631, lon: -109.753463 }
+};
+
+/* Tour stops, in order, from the Garmin flight plan (KCNY to KCNY).
+   range = how far the camera circles from the landmark, in meters. */
+const STOPS = [
+  { name: 'Jewel Tibbetts Arch',        lat: 38.62825788612484, lon: -109.8638645570713, range: 1300 },
+  { name: 'Hell Roaring Canyon',        lat: 38.61629,          lon: -109.89132,         range: 3000 },
+  { name: 'Mineral Canyon',             lat: 38.54319,          lon: -109.92719,         range: 3000 },
+  { name: 'Upheaval Dome',              lat: 38.43872,          lon: -109.92841,         range: 4500 },
+  { name: 'Grand View Point',           lat: 38.30678412821815, lon: -109.8560061207679, range: 3200 },
+  { name: 'The Chocolate Drops',        lat: 38.2223,           lon: -109.99624,         range: 1600 },
+  { name: 'Chimney Rock',               lat: 38.1564200027701,  lon: -110.0233568893105, range: 1600 },
+  { name: 'The Confluence',             lat: 38.18858,          lon: -109.87961,         range: 3800 },
+  { name: 'Druid Arch',                 lat: 38.08876,          lon: -109.83244,         range: 1100 },
+  { name: 'Kirk Arch',                  lat: 37.99144,          lon: -109.76037,         range: 1100 },
+  { name: 'Elephant Trunk Arch',        lat: 38.00256,          lon: -109.75975,         range: 1100 },
+  { name: 'Angel Arch',                 lat: 38.0517,           lon: -109.75627,         range: 1100 },
+  { name: 'Castle Arch',                lat: 38.065,            lon: -109.74051,         range: 1100 },
+  { name: 'The Loop',                   lat: 38.23929,          lon: -109.8164,          range: 4500 },
+  { name: 'Dead Horse Point State Park',lat: 38.47078,          lon: -109.74045,         range: 3500 },
+  { name: 'Potash Ponds',               lat: 38.48727339598815, lon: -109.6837016489806, range: 4200 },
+  { name: 'Corona Arch',                lat: 38.58398781784155, lon: -109.6289062332708, range: 1100 }
+];
+/* ============================================ */
+
+const CESIUM_VERSION = '1.120.0';
+const LIB_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/cesium@' + CESIUM_VERSION + '/Build/Cesium/',
+  'https://cdnjs.cloudflare.com/ajax/libs/cesium/' + CESIUM_VERSION + '/'
+];
+const DEFAULT_H = 1550; // starting height guess (m) until the real ground height is measured
+
+const root = document.getElementById('redtail-route');
+const $ = id => document.getElementById('rt-' + id);
+const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const angDiff = (a, b) => ((b - a + 540) % 360) - 180;
+const ease = u => u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3) / 2;
+function bearing(a, b) {
+  const y = Math.sin(rad(b.lon-a.lon)) * Math.cos(rad(b.lat));
+  const x = Math.cos(rad(a.lat))*Math.sin(rad(b.lat)) - Math.sin(rad(a.lat))*Math.cos(rad(b.lat))*Math.cos(rad(b.lon-a.lon));
+  return (deg(Math.atan2(y, x)) + 360) % 360;
+}
+function km(a, b) {
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
+/* ---------- static UI ---------- */
+$('title').textContent = CONFIG.title;
+$('subtitle').textContent = CONFIG.subtitle;
+const N = STOPS.length;
+const chips = STOPS.map((s, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.type = 'button'; b.setAttribute('role', 'listitem');
+  b.innerHTML = '<i>' + (i + 1) + '</i>' + s.name;
+  $('chips').appendChild(b);
+  return b;
+});
+const coarse = matchMedia('(pointer: coarse)').matches;
+$('hint').textContent = coarse ? 'Touch and drag to look around. Pinch to zoom.' : 'Drag to look around. Ctrl + scroll to zoom.';
+
+function fail(msg) {
+  const d = document.createElement('div');
+  d.className = 'fallback'; d.innerHTML = msg;
+  $('map').appendChild(d);
+  $('hint').classList.add('gone');
+}
+function hasWebGL() {
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); }
+  catch (e) { return false; }
+}
+function loadLib(i) {
+  if (window.Cesium) return start();
+  if (i >= LIB_SOURCES.length) return fail('The 3D map couldn’t load. Check your connection and try again.');
+  window.CESIUM_BASE_URL = LIB_SOURCES[i];
+  const css = document.createElement('link');
+  css.rel = 'stylesheet'; css.href = LIB_SOURCES[i] + 'Widgets/widgets.css';
+  document.head.appendChild(css);
+  const js = document.createElement('script');
+  js.src = LIB_SOURCES[i] + 'Cesium.js';
+  js.onload = start;
+  js.onerror = () => { css.remove(); js.remove(); loadLib(i + 1); };
+  document.head.appendChild(js);
+}
+
+const ICON_PLAY = '<path d="M7 4.5v15l13-7.5z"/>';
+const ICON_PAUSE = '<path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/>';
+const KEY_MSG = 'Google’s 3D imagery didn’t load. Check that the API key is correct, the Map Tiles API is turned on, and this website is allowed in the key’s settings.';
+
+async function start() {
+  if (!hasWebGL()) return fail('This map needs WebGL, which is off or unavailable in this browser. Try a current version of Chrome, Safari, Edge or Firefox.');
+  if (!CONFIG.googleApiKey || CONFIG.googleApiKey.indexOf('PASTE_') === 0)
+    return fail('Add your Google Maps API key to the <b>googleApiKey</b> setting to show the 3D imagery.');
+
+  const C = window.Cesium;
+  C.GoogleMaps.defaultApiKey = CONFIG.googleApiKey;
+
+  let viewer;
+  try {
+    viewer = new C.Viewer($('map'), {
+      globe: false, baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false,
+      sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false,
+      fullscreenButton: false, infoBox: false, selectionIndicator: false, requestRenderMode: false
+    });
+  } catch (e) {
+    console.error(e);
+    return fail('The 3D map couldn’t start: ' + (e && e.message ? e.message : 'unknown error'));
+  }
+  const scene = viewer.scene, camera = viewer.camera;
+  scene.skyAtmosphere.show = true;
+  scene.screenSpaceCameraController.enableInputs = false;
+  viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_CLICK);
+
+  /* Credits: Google logo on screen; data sources behind a small "Data" toggle */
+  const dataBtn = document.createElement('button');
+  dataBtn.className = 'rt-data'; dataBtn.type = 'button'; dataBtn.textContent = 'Data';
+  dataBtn.setAttribute('aria-expanded', 'false');
+  dataBtn.addEventListener('click', () => dataBtn.setAttribute('aria-expanded', String(root.classList.toggle('show-credits'))));
+  viewer.cesiumWidget.creditContainer.appendChild(dataBtn);
+
+  let tiles;
+  try {
+    tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
+    scene.primitives.add(tiles);
+    let warned = false;
+    tiles.tileFailed.addEventListener(err => {
+      if (warned || !/40[13]|key|denied|forbidden/i.test(String(err && (err.message || err)))) return;
+      warned = true; fail(KEY_MSG);
+    });
+  } catch (e) {
+    console.error(e);
+    return fail(KEY_MSG);
+  }
+
+  /* ---------- landmark positions (ground height measured from the 3D imagery) ---------- */
+  const pts = STOPS.concat([CONFIG.home]);
+  pts.forEach(p => { p.h = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
+  const setH = (p, h) => { if (isFinite(h)) { p.h = h; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, h); } };
+  if (scene.sampleHeightMostDetailed) {
+    scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)))
+      .then(res => res.forEach((c, i) => c && setH(pts[i], c.height)))
+      .catch(e => console.warn('Height sampling failed', e));
+  }
+
+  /* ---------- labels ---------- */
+  let current = -1; // -1 = overview
+  const RED = C.Color.fromCssColorString('#d42a2f');
+  const DARK = C.Color.fromCssColorString('rgba(24,19,16,0.78)');
+  const FONT = '"Barlow Semi Condensed", sans-serif';
+  STOPS.forEach((s, i) => viewer.entities.add({
+    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => s.pos, false),
+    point: {
+      pixelSize: new C.CallbackProperty(() => i === current ? 12 : 8, false),
+      color: new C.CallbackProperty(() => i === current ? RED : C.Color.WHITE, false),
+      outlineColor: new C.CallbackProperty(() => i === current ? C.Color.WHITE : RED, false),
+      outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY
+    },
+    label: {
+      text: s.name,
+      font: new C.CallbackProperty(() => (i === current ? '700 17px ' : '600 13px ') + FONT, false),
+      fillColor: C.Color.WHITE, showBackground: true,
+      backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
+      backgroundPadding: new C.Cartesian2(9, 5),
+      verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    }
+  }));
+  const home = CONFIG.home;
+  viewer.entities.add({
+    position: new (C.CallbackPositionProperty || C.CallbackProperty)(() => home.pos, false),
+    point: { pixelSize: 9, color: C.Color.WHITE, outlineColor: C.Color.fromCssColorString('#3a2a22'), outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: {
+      text: '✈ ' + home.name, font: '600 13px ' + FONT, fillColor: C.Color.WHITE, showBackground: true,
+      backgroundColor: DARK, backgroundPadding: new C.Cartesian2(9, 5),
+      verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    }
+  });
+
+  /* ---------- camera ---------- */
+  const center = { lat: 0, lon: 0 };
+  pts.forEach(p => { center.lat += p.lat / pts.length; center.lon += p.lon / pts.length; });
+  let spread = 0; pts.forEach(p => spread = Math.max(spread, km(center, p)));
+  const OVERVIEW = { yaw: -15, pitch: -48, range: spread * 1000 * 2.3 };
+
+  const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1, ovYaw: 0, ovPitch: OVERVIEW.pitch, ovZoom: 1 };
+  let phase = 'overview';  // 'overview' | 'fly' | 'orbit'
+  let orbitStart = 0, orbitAngle = 0, flight = null;
+
+  const overviewPose = () => ({
+    target: C.Cartesian3.fromDegrees(center.lon, center.lat, DEFAULT_H),
+    heading: OVERVIEW.yaw + user.ovYaw, pitch: user.ovPitch, range: OVERVIEW.range * user.ovZoom
+  });
+  const orbitPose = i => ({
+    target: STOPS[i].pos,
+    heading: orbitStart + orbitAngle + user.yaw, pitch: user.pitch, range: STOPS[i].range * user.zoom
+  });
+
+  function pose(now) {
+    if (phase === 'toOverview') return lastPose;
+    if (phase === 'overview') return overviewPose();
+    if (phase === 'orbit') return orbitPose(current);
+    const u = clamp((now - flight.t0) / flight.dur, 0, 1), e = ease(u);
+    const to = orbitPose(current), f = flight.from;
+    const lr = Math.log(f.range) + (Math.log(to.range) - Math.log(f.range)) * e + Math.sin(Math.PI * u) * flight.hop;
+    if (u >= 1) { phase = 'orbit'; }
+    return {
+      target: C.Cartesian3.lerp(f.target, to.target, e, new C.Cartesian3()),
+      heading: f.heading + angDiff(f.heading, to.heading) * e,
+      pitch: f.pitch + (to.pitch - f.pitch) * e,
+      range: Math.exp(lr)
+    };
+  }
+  let lastPose = overviewPose();
+  scene.preRender.addEventListener(() => {
+    const p = pose(performance.now());
+    lastPose = p;
+    camera.lookAtTransform(C.Transforms.eastNorthUpToFixedFrame(p.target),
+      new C.HeadingPitchRange(rad(p.heading), rad(p.pitch), p.range));
+  });
+
+  const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function flyTo(i) {
+    const from = lastPose;
+    const prev = current >= 0 ? STOPS[current] : center;
+    current = i;
+    orbitStart = bearing(prev, STOPS[i]);
+    if (current >= 0 && prev === STOPS[i]) orbitStart = from.heading;
+    orbitAngle = 0; user.yaw = 0;
+    const dist = km(prev, STOPS[i]);
+    const dur = reduceMotion() ? 1 : clamp(2600 + dist * 260, 3000, 9000) / Number($('speed').value || 1);
+    flight = { from, t0: performance.now(), dur, hop: clamp(dist / 12, 0, 1.1) };
+    phase = 'fly';
+    updateUI();
+  }
+  function toOverview() {
+    const from = lastPose;
+    current = -1;
+    const t0 = performance.now(), dur = reduceMotion() ? 1 : 3200;
+    phase = 'toOverview';
+    const step = () => {
+      if (phase !== 'toOverview') return;
+      const u = clamp((performance.now() - t0) / dur, 0, 1), e = ease(u);
+      const tgt = overviewPose();
+      lastPose = {
+        target: C.Cartesian3.lerp(from.target, tgt.target, e, new C.Cartesian3()),
+        heading: from.heading + angDiff(from.heading, tgt.heading) * e,
+        pitch: from.pitch + (tgt.pitch - from.pitch) * e,
+        range: Math.exp(Math.log(from.range) + (Math.log(tgt.range) - Math.log(from.range)) * e)
+      };
+      if (u >= 1) { phase = 'overview'; return; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    updateUI();
+  }
+
+  /* ---------- touch / mouse: one finger turns and tilts, two fingers zoom ---------- */
+  const canvas = viewer.canvas, ptrs = new Map();
+  let pinch0 = 0;
+  const hideHint = () => $('hint').classList.add('gone');
+  setTimeout(hideHint, 6000);
+  const pinchDist = () => { const a = [...ptrs.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
+  const ov = () => phase === 'overview' || phase === 'toOverview';
+  canvas.addEventListener('pointerdown', e => {
+    hideHint();
+    canvas.setPointerCapture(e.pointerId);
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 2) pinch0 = pinchDist();
+  });
+  canvas.addEventListener('pointermove', e => {
+    const p = ptrs.get(e.pointerId);
+    if (!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y;
+    p.x = e.clientX; p.y = e.clientY;
+    if (ptrs.size === 1) {
+      if (ov()) { user.ovYaw -= dx * 0.3; user.ovPitch = clamp(user.ovPitch - dy * 0.25, -89, -5); }
+      else { user.yaw -= dx * 0.3; user.pitch = clamp(user.pitch - dy * 0.25, -89, -3); }
+    } else if (ptrs.size === 2) {
+      const d = pinchDist();
+      if (pinch0 > 0 && d > 0) {
+        const f = pinch0 / d;
+        if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
+        else user.zoom = clamp(user.zoom * f, 0.15, 4);
+      }
+      pinch0 = d;
+    }
+  });
+  const lift = e => { ptrs.delete(e.pointerId); pinch0 = ptrs.size === 2 ? pinchDist() : 0; };
+  canvas.addEventListener('pointerup', lift);
+  canvas.addEventListener('pointercancel', lift);
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  let toastTimer;
+  canvas.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.metaKey)) {
+      $('toast').textContent = 'Hold Ctrl or ⌘ and scroll to zoom';
+      $('toast').classList.add('on');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $('toast').classList.remove('on'), 1400);
+      return;
+    }
+    e.preventDefault(); hideHint();
+    const f = Math.exp(e.deltaY * 0.004);
+    if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
+    else user.zoom = clamp(user.zoom * f, 0.15, 4);
+  }, { passive: false });
+
+  /* ---------- tour playback ---------- */
+  let playing = false, last = null;
+  function setPlaying(on) {
+    playing = on;
+    root.classList.toggle('playing', on);
+    root.classList.toggle('min', on);
+    $('playIcon').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+    $('play').setAttribute('aria-label', on ? 'Pause the tour' : (current >= 0 ? 'Resume the tour' : 'Start the tour'));
+    const mp = $('mpause');
+    mp.querySelector('svg').innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+    mp.setAttribute('aria-label', on ? 'Pause' : 'Play');
+    if (on) { last = null; requestAnimationFrame(tick); }
+  }
+  function tick(ts) {
+    if (!playing) return;
+    if (last !== null && phase === 'orbit') {
+      const dt = Math.min((ts - last) / 1000, 0.1);
+      orbitAngle += dt * 360 / CONFIG.orbitSeconds * Number($('speed').value || 1);
+      ring();
+      if (orbitAngle >= 360) {
+        if (current < N - 1) flyTo(current + 1);
+        else { setPlaying(false); toOverview(); }
+      }
+    }
+    last = ts;
+    if (playing) requestAnimationFrame(tick);
+  }
+  function ring() {
+    const f = phase === 'orbit' ? clamp(orbitAngle / 360, 0, 1) : 0;
+    $('ring').setAttribute('stroke-dashoffset', String(56.55 * (1 - f)));
+  }
+
+  function updateUI() {
+    const on = current >= 0;
+    $('now').classList.toggle('off', !on);
+    if (on) {
+      $('nowNum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
+      $('nowName').textContent = STOPS[current].name;
+      $('mnum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
+      $('mname').textContent = STOPS[current].name;
+      $('subtitle').textContent = 'Stop ' + (current + 1) + ' of ' + N + ': ' + STOPS[current].name;
+    } else {
+      $('subtitle').textContent = CONFIG.subtitle;
+      $('mnum').textContent = 'Overview'; $('mname').textContent = CONFIG.title;
+    }
+    chips.forEach((c, i) => c.classList.toggle('on', i === current));
+    if (on) chips[current].scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+    ring();
+  }
+
+  function play() {
+    if (current < 0 || phase === 'overview' || phase === 'toOverview') flyTo(current < 0 ? 0 : current);
+    setPlaying(true);
+  }
+  function go(i) { flyTo(clamp(i, 0, N - 1)); }
+
+  $('play').addEventListener('click', () => playing ? setPlaying(false) : play());
+  $('mpause').addEventListener('click', () => playing ? setPlaying(false) : play());
+  $('expand').addEventListener('click', () => root.classList.remove('min'));
+  $('collapse').addEventListener('click', () => root.classList.add('min'));
+  $('next').addEventListener('click', () => go(current + 1));
+  $('mnext').addEventListener('click', () => go(current + 1));
+  $('prev').addEventListener('click', () => go(current - 1));
+  $('overview').addEventListener('click', () => { setPlaying(false); toOverview(); });
+  chips.forEach((c, i) => c.addEventListener('click', () => go(i)));
+
+  updateUI();
+}
+
+loadLib(0);
+})();
+</script>
+
+</body>
+</html>
