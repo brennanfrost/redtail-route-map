@@ -54,6 +54,7 @@
 #redtail-route .foot select{-webkit-appearance:none;appearance:none;padding:0 26px 0 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
 #redtail-route .foot select option{color:#000}
 #redtail-route .foot .ghost{padding:0 12px}
+#redtail-route .mini .learn{flex-shrink:0;font:700 .92rem var(--font);color:#fff;background:rgba(255,255,255,.12);border:1px solid var(--rim);border-radius:999px;min-height:38px;padding:0 14px;margin:0;cursor:pointer;touch-action:manipulation}
 #redtail-route .foot select:hover,#redtail-route .foot .ghost:hover{background-color:rgba(255,255,255,.18)}
 
 #redtail-route .mini{position:absolute;left:50%;bottom:12px;width:min(calc(100% - 24px),420px);display:flex;align-items:center;gap:8px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--rim);border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.3);transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .45s var(--ease),opacity .3s ease}
@@ -130,16 +131,8 @@
       <button class="icon" id="rt-next" aria-label="Next stop">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
       </button>
-      <button class="icon" id="rt-info" aria-label="About this landmark">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1"/></svg>
-      </button>
+      <button class="ghost learn" id="rt-info">Learn</button>
       <span class="spacer"></span>
-      <label class="sr" for="rt-speed">Tour speed</label>
-      <select id="rt-speed">
-        <option value="0.6">Relaxed</option>
-        <option value="1" selected>Normal</option>
-        <option value="1.8">Quick</option>
-      </select>
       <button class="ghost" id="rt-overview">Overview</button>
     </div>
   </div>
@@ -150,9 +143,7 @@
     </button>
     <svg class="mring" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3"/><circle id="rt-ring" cx="11" cy="11" r="9" fill="none" stroke="#e8453c" stroke-width="3" stroke-linecap="round" stroke-dasharray="56.55" stroke-dashoffset="56.55"/></svg>
     <div class="mtext"><small id="rt-mnum"></small><b id="rt-mname"></b></div>
-    <button class="icon" id="rt-minfo" aria-label="About this landmark">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1"/></svg>
-    </button>
+    <button class="ghost learn" id="rt-minfo">Learn</button>
     <button class="icon" id="rt-mnext" aria-label="Next stop">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
     </button>
@@ -315,8 +306,8 @@ $('title').textContent = CONFIG.title;
 $('subtitle').textContent = CONFIG.subtitle;
 $('introTitle').textContent = CONFIG.title;
 const introItems = coarse
-  ? [['✋', 'Drag with one finger to move around'], ['🤏', 'Pinch to zoom in and out'], ['✌️', 'Drag two fingers up or down to tilt'], ['📍', 'Tap any landmark name to learn about it'], ['▶', 'Press play to fly the tour']]
-  : [['🖱', 'Drag to move around'], ['⌃', 'Ctrl (or ⌘) + scroll to zoom, Ctrl + drag to tilt'], ['📍', 'Click any landmark name to learn about it'], ['▶', 'Press play to fly the tour']];
+  ? [['✋', 'Drag with one finger to move around'], ['🤏', 'Pinch to zoom in and out'], ['✌️', 'Slide two fingers up or down to tilt, twist to turn'], ['📍', 'Tap any landmark name to learn about it'], ['▶', 'Press play to fly the tour']]
+  : [['🖱', 'Drag to move around'], ['↻', 'Right-drag (or Ctrl + drag) to turn and tilt'], ['🔍', 'Ctrl or ⌘ + scroll to zoom'], ['📍', 'Click any landmark name to learn about it'], ['▶', 'Press play to fly the tour']];
 $('introList').innerHTML = introItems.map(i => '<li><span aria-hidden="true">' + i[0] + '</span>' + esc(i[1]) + '</li>').join('');
 $('introGo').addEventListener('click', () => $('intro').classList.add('gone'));
 
@@ -381,12 +372,10 @@ async function start() {
   }
   const scene = viewer.scene, camera = viewer.camera, canvas = viewer.canvas;
   scene.skyAtmosphere.show = true;
-  const ctl = scene.screenSpaceCameraController;
-  ctl.minimumZoomDistance = 100;
-  ctl.maximumZoomDistance = 250000;
-  const K = C.KeyboardEventModifier, E = C.CameraEventType;
-  ctl.zoomEventTypes = [E.RIGHT_DRAG, E.PINCH, { eventType: E.WHEEL, modifier: K.CTRL }];
-  ctl.tiltEventTypes = [E.MIDDLE_DRAG, E.PINCH, { eventType: E.LEFT_DRAG, modifier: K.CTRL }, { eventType: E.RIGHT_DRAG, modifier: K.CTRL }];
+  scene.screenSpaceCameraController.enableInputs = false;   // all camera control is handled below
+  // sharper text and imagery on high-density screens (capped for smooth performance)
+  viewer.useBrowserRecommendedResolution = false;
+  viewer.resolutionScale = Math.min(1, 1.5 / (window.devicePixelRatio || 1));
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   viewer.screenSpaceEventHandler.removeInputAction(C.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -445,10 +434,10 @@ async function start() {
       },
       label: {
         text: s.name,
-        font: new C.CallbackProperty(() => (i === current ? '700 17px ' : '600 14px ') + FONT, false),
-        fillColor: C.Color.WHITE, showBackground: true,
+        font: '700 30px ' + FONT, scale: new C.CallbackProperty(() => i === current ? 0.6 : 0.5, false),
+        fillColor: C.Color.WHITE, style: C.LabelStyle.FILL, showBackground: true,
         backgroundColor: new C.CallbackProperty(() => i === current ? RED : DARK, false),
-        backgroundPadding: new C.Cartesian2(11, 7),
+        backgroundPadding: new C.Cartesian2(20, 12),
         verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
         disableDepthTestDistance: Number.POSITIVE_INFINITY
       }
@@ -459,43 +448,38 @@ async function start() {
     position: new PosProp(() => home.pos, false),
     point: { pixelSize: 9, color: C.Color.WHITE, outlineColor: C.Color.fromCssColorString('#3a2a22'), outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
     label: {
-      text: '✈ ' + home.name, font: '600 13px ' + FONT, fillColor: C.Color.WHITE, showBackground: true,
-      backgroundColor: DARK, backgroundPadding: new C.Cartesian2(9, 5),
+      text: '✈ ' + home.name, font: '600 26px ' + FONT, scale: 0.5, fillColor: C.Color.WHITE, style: C.LabelStyle.FILL, showBackground: true,
+      backgroundColor: DARK, backgroundPadding: new C.Cartesian2(18, 10),
       verticalOrigin: C.VerticalOrigin.BOTTOM, pixelOffset: new C.Cartesian2(0, -12),
       disableDepthTestDistance: Number.POSITIVE_INFINITY
     }
   });
+  // Tap/click hit test: checks each landmark's label box on screen (more reliable than 3D picking)
+  const toScreen = C.SceneTransforms.worldToWindowCoordinates || C.SceneTransforms.wgs84ToWindowCoordinates;
   function pickStop(x, y) {
     const r = canvas.getBoundingClientRect();
-    const picked = scene.pick(new C.Cartesian2(x - r.left, y - r.top));
-    if (picked && picked.id && entityStop.has(picked.id)) showInfo(entityStop.get(picked.id));
+    const px = x - r.left, py = y - r.top;
+    let best = -1, bestD = Infinity;
+    STOPS.forEach((s, i) => {
+      const p = toScreen(scene, s.pos);
+      if (!p) return;
+      const sc = i === current ? 0.6 : 0.5;
+      const halfW = (s.name.length * 15 + 40) * sc / 2 + 6;
+      const top = p.y - 12 - (30 + 24) * sc - 6, bottom = p.y + 10;
+      if (px >= p.x - halfW && px <= p.x + halfW && py >= top && py <= bottom) {
+        const d = Math.abs(px - p.x) + Math.abs(py - (top + bottom) / 2);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+    });
+    if (best >= 0) { showInfo(best); return true; }
+    return false;
   }
-  viewer.screenSpaceEventHandler.setInputAction(e => {
-    const r = canvas.getBoundingClientRect();
-    pickStop(e.position.x + r.left, e.position.y + r.top);
-  }, C.ScreenSpaceEventType.LEFT_CLICK);
 
   /* ---------- camera ---------- */
-  // phases: 'explore' (free map controls) | 'fly' (to a landmark) | 'orbit' (circling) | 'toTop' (back to overhead)
-  let phase = 'explore', orbitStart = 0, orbitAngle = 0, anim = null, lastPose = null;
+  // phases: 'explore' (free map) | 'fly' (to a landmark) | 'orbit' (circling) | 'toTop' (back to overhead)
+  let phase = 'explore', orbitStart = 0, orbitAngle = 0, anim = null, lastPose = null, free = null;
   const user = { yaw: 0, pitch: CONFIG.orbitPitchDeg, zoom: 1 };
 
-  function poseFromCamera() {
-    const pos = camera.positionWC.clone(), dir = camera.directionWC.clone();
-    let target;
-    try { target = scene.pickPosition(new C.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2)); } catch (e) {}
-    if (!target) {
-      const carto = C.Cartographic.fromCartesian(pos);
-      const R = Math.max((carto.height - DEFAULT_H) / Math.max(Math.sin(-camera.pitch), 0.25), 400);
-      target = C.Cartesian3.add(pos, C.Cartesian3.multiplyByScalar(dir, R, new C.Cartesian3()), new C.Cartesian3());
-    }
-    const inv = C.Matrix4.inverseTransformation(C.Transforms.eastNorthUpToFixedFrame(target), new C.Matrix4());
-    const v = C.Matrix4.multiplyByPoint(inv, pos, new C.Cartesian3());
-    return {
-      target, range: Math.max(C.Cartesian3.magnitude(v), 50),
-      heading: deg(Math.atan2(-v.x, -v.y)), pitch: deg(Math.atan2(-v.z, Math.hypot(v.x, v.y)))
-    };
-  }
   function topPose() {
     let w = 180, e = -180, s = 90, n = -90;
     pts.forEach(p => { w = Math.min(w, p.lon); e = Math.max(e, p.lon); s = Math.min(s, p.lat); n = Math.max(n, p.lat); });
@@ -504,10 +488,11 @@ async function start() {
     const dest = camera.getRectangleCameraCoordinates(rect);
     const c = C.Cartographic.fromCartesian(dest);
     return {
-      target: C.Cartesian3.fromDegrees(deg(c.longitude), deg(c.latitude), DEFAULT_H),
-      heading: 0, pitch: -89.5, range: Math.max(c.height - DEFAULT_H, 5000)
+      target: C.Cartesian3.fromDegrees(C.Math.toDegrees(c.longitude), C.Math.toDegrees(c.latitude), DEFAULT_H),
+      heading: 0, pitch: -89.5, range: clamp(c.height - DEFAULT_H, 5000, 400000)
     };
   }
+  const TOP = topPose();
   const orbitPose = i => ({
     target: STOPS[i].pos,
     heading: orbitStart + orbitAngle + user.yaw, pitch: user.pitch, range: STOPS[i].range * user.zoom
@@ -527,119 +512,152 @@ async function start() {
       new C.HeadingPitchRange(rad(p.heading), rad(p.pitch), p.range));
     lastPose = p;
   }
-  function enterExplore() {
-    camera.lookAtTransform(C.Matrix4.IDENTITY);
+  function enterExplore(p) {
+    free = { target: p.target.clone ? p.target.clone() : p.target, heading: p.heading, pitch: p.pitch, range: p.range };
     phase = 'explore';
-    ctl.enableInputs = true;
-  }
-  function leaveExplore() {
-    if (phase !== 'explore') return lastPose || poseFromCamera();
-    const p = poseFromCamera();
-    ctl.enableInputs = false;
-    return p;
   }
 
   scene.preRender.addEventListener(() => {
-    if (phase === 'explore') return;
-    const now = performance.now();
+    if (phase === 'explore') return applyPose(free);
     if (phase === 'orbit') return applyPose(orbitPose(current));
-    const u = clamp((now - anim.t0) / anim.dur, 0, 1);
+    const u = clamp((performance.now() - anim.t0) / anim.dur, 0, 1);
     if (phase === 'fly') {
       applyPose(blend(anim.from, orbitPose(current), u, anim.hop));
       if (u >= 1) phase = 'orbit';
     } else if (phase === 'toTop') {
-      applyPose(blend(anim.from, anim.to, u, 0));
-      if (u >= 1) enterExplore();
+      const p = blend(anim.from, TOP, u, 0);
+      applyPose(p);
+      if (u >= 1) enterExplore(TOP);
     }
   });
 
   const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const speed = () => Number($('speed').value || 1);
 
   function flyTo(i) {
     i = clamp(i, 0, N - 1);
-    const from = leaveExplore();
+    const from = lastPose;
     const prev = current >= 0 ? STOPS[current] : null;
     current = selected = i;
     orbitAngle = 0; user.yaw = 0;
     if (prev && prev !== STOPS[i]) orbitStart = bearing(prev, STOPS[i]);
     else orbitStart = from.heading;
-    const dist = prev ? km(prev, STOPS[i]) : C.Cartesian3.distance(from.target, STOPS[i].pos) / 1000;
+    const dist = C.Cartesian3.distance(from.target, STOPS[i].pos) / 1000;
     const fromHigh = from.range > STOPS[i].range * 2.5;
-    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000) / speed();
+    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000);
     const hop = fromHigh ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
     anim = { from, t0: performance.now(), dur, hop };
     phase = 'fly';
     updateUI();
   }
   function toTop() {
-    const from = phase === 'explore' ? poseFromCamera() : (lastPose || poseFromCamera());
-    ctl.enableInputs = false;
     current = -1;
-    anim = { from, to: topPose(), t0: performance.now(), dur: reduceMotion() ? 1 : 3400 };
+    anim = { from: lastPose, t0: performance.now(), dur: reduceMotion() ? 1 : 3400 };
     phase = 'toTop';
     updateUI();
   }
 
-  /* ---------- touch / mouse while circling a landmark ---------- */
-  // In 'explore' the map's own controls handle everything (pan, pinch zoom, two-finger tilt).
+  /* ---------- touch & mouse ----------
+     Exploring: one finger moves the map, pinch zooms, two fingers slide to tilt and twist to turn.
+     Circling a landmark: one finger turns and tilts the view, pinch zooms. Tap a name for its info. */
   const area = $('map');
   const SIGN = CONFIG.invertDrag ? -1 : 1;
-  const ours = () => phase !== 'explore';
   const onControl = e => e.target && e.target.closest && e.target.closest('button, a');
-  function turn(dx, dy) {
-    user.yaw -= SIGN * dx * 0.3;
-    user.pitch = clamp(user.pitch - SIGN * dy * 0.25, -89, -3);
+  const settle = () => {
+    if (phase === 'toTop') enterExplore(lastPose);
+  };
+  function pan(dx, dy) {
+    if (phase !== 'explore') return;
+    const mpp = 2 * free.range * Math.tan((camera.frustum.fovy || 1) / 2) / Math.max(canvas.clientHeight, 1);
+    const h = rad(free.heading), tilt = Math.max(Math.sin(-rad(free.pitch)), 0.35);
+    const fwd = SIGN * dy * mpp / tilt, right = -SIGN * dx * mpp;
+    const e = right * Math.cos(h) + fwd * Math.sin(h);
+    const n = -right * Math.sin(h) + fwd * Math.cos(h);
+    free.target = C.Matrix4.multiplyByPoint(C.Transforms.eastNorthUpToFixedFrame(free.target), new C.Cartesian3(e, n, 0), new C.Cartesian3());
   }
-  const zoomBy = f => { user.zoom = clamp(user.zoom * f, 0.04, 4); };
+  function turn(dx, dy) {
+    if (phase === 'explore') {
+      free.heading -= SIGN * dx * 0.3;
+      free.pitch = clamp(free.pitch - SIGN * dy * 0.25, -89.5, -8);
+    } else {
+      user.yaw -= SIGN * dx * 0.3;
+      user.pitch = clamp(user.pitch - SIGN * dy * 0.25, -89, -3);
+    }
+  }
+  function tilt(dy) {
+    if (phase === 'explore') free.pitch = clamp(free.pitch + SIGN * dy * 0.25, -89.5, -8);
+    else user.pitch = clamp(user.pitch + SIGN * dy * 0.25, -89, -3);
+  }
+  function twist(da) {
+    if (phase === 'explore') free.heading -= da; else user.yaw -= da;
+  }
+  function zoomBy(f) {
+    if (phase === 'explore') free.range = clamp(free.range * f, 250, TOP.range * 1.6);
+    else user.zoom = clamp(user.zoom * f, 0.04, 4);
+  }
 
-  let t1 = null, pinch0 = 0, tap = null;
-  const tdist = tl => Math.hypot(tl[0].clientX - tl[1].clientX, tl[0].clientY - tl[1].clientY);
+  // Touch
+  let one = null, two = null, tap = null;
+  const twoState = tl => {
+    const a = tl[0], b = tl[1];
+    return { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), ang: deg(Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX)), my: (a.clientY + b.clientY) / 2 };
+  };
   area.addEventListener('touchstart', e => {
-    if (!ours() || onControl(e)) return;
-    if (e.touches.length === 1) {
-      t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0;
-      tap = { x: t1.x, y: t1.y, t: performance.now() };
-    } else if (e.touches.length >= 2) { t1 = null; tap = null; pinch0 = tdist(e.touches); }
+    if (onControl(e)) return;
     e.preventDefault();
+    settle();
+    if (e.touches.length === 1) {
+      one = { x: e.touches[0].clientX, y: e.touches[0].clientY }; two = null;
+      tap = { x: one.x, y: one.y, t: performance.now() };
+    } else if (e.touches.length >= 2) { one = null; tap = null; two = twoState(e.touches); }
   }, { passive: false, capture: true });
   area.addEventListener('touchmove', e => {
-    if (!ours() || onControl(e)) return;
+    if (onControl(e)) return;
     e.preventDefault();
-    if (e.touches.length === 1 && t1) {
+    if (e.touches.length === 1 && one) {
       const x = e.touches[0].clientX, y = e.touches[0].clientY;
-      turn(x - t1.x, y - t1.y);
-      t1 = { x, y };
+      if (phase === 'explore') pan(x - one.x, y - one.y); else turn(x - one.x, y - one.y);
+      one = { x, y };
       if (tap && Math.hypot(x - tap.x, y - tap.y) > 8) tap = null;
-    } else if (e.touches.length >= 2) {
-      const d = tdist(e.touches);
-      if (pinch0 > 0 && d > 0) zoomBy(pinch0 / d);
-      pinch0 = d;
+    } else if (e.touches.length >= 2 && two) {
+      const n = twoState(e.touches);
+      if (n.d > 0 && two.d > 0) zoomBy(two.d / n.d);
+      tilt(n.my - two.my);
+      twist(angDiff(two.ang, n.ang));
+      two = n;
     }
   }, { passive: false, capture: true });
   const tEnd = e => {
-    if (!ours()) { t1 = null; return; }
-    if (e.touches.length === 0 && tap && performance.now() - tap.t < 350) pickStop(tap.x, tap.y);
-    if (e.touches.length === 1) { t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0; }
-    else if (e.touches.length === 0) { t1 = null; pinch0 = 0; tap = null; }
+    if (e.touches.length === 0) {
+      if (tap && performance.now() - tap.t < 400) pickStop(tap.x, tap.y);
+      one = two = tap = null;
+    } else if (e.touches.length === 1) {
+      one = { x: e.touches[0].clientX, y: e.touches[0].clientY }; two = null; tap = null;
+    }
   };
   area.addEventListener('touchend', tEnd, { capture: true });
   area.addEventListener('touchcancel', tEnd, { capture: true });
 
-  let m1 = null;
+  // Mouse
+  let m = null;
   area.addEventListener('pointerdown', e => {
-    if (e.pointerType !== 'mouse' || !ours() || onControl(e)) return;
-    m1 = { x: e.clientX, y: e.clientY };
+    if (e.pointerType !== 'mouse' || onControl(e)) return;
+    settle();
+    m = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now(), rot: e.button === 2 || e.ctrlKey || e.metaKey };
     try { area.setPointerCapture(e.pointerId); } catch (_) {}
   }, true);
   area.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse' || !m1 || !ours()) return;
-    turn(e.clientX - m1.x, e.clientY - m1.y);
-    m1 = { x: e.clientX, y: e.clientY };
+    if (e.pointerType !== 'mouse' || !m) return;
+    const dx = e.clientX - m.x, dy = e.clientY - m.y;
+    if (phase === 'explore' && !m.rot) pan(dx, dy); else turn(dx, dy);
+    m.x = e.clientX; m.y = e.clientY;
   }, true);
-  const mUp = e => { if (e.pointerType === 'mouse') m1 = null; };
+  const mUp = e => {
+    if (e.pointerType !== 'mouse' || !m) return;
+    if (Math.hypot(e.clientX - m.sx, e.clientY - m.sy) < 5 && performance.now() - m.t < 500) pickStop(e.clientX, e.clientY);
+    m = null;
+  };
   area.addEventListener('pointerup', mUp, true);
-  area.addEventListener('pointercancel', mUp, true);
+  area.addEventListener('pointercancel', () => { m = null; }, true);
   area.addEventListener('contextmenu', e => e.preventDefault());
 
   let toastTimer;
@@ -652,7 +670,8 @@ async function start() {
       return;
     }
     e.preventDefault();
-    if (ours()) zoomBy(Math.exp(e.deltaY * 0.004));
+    settle();
+    zoomBy(Math.exp(e.deltaY * 0.004));
   }, { passive: false, capture: true });
 
   /* ---------- info sheet ---------- */
@@ -665,7 +684,7 @@ async function start() {
     $('sheetBody').innerHTML = '<p>' + esc(s.about) + '</p><ul>' + s.facts.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>';
     $('sheetBody').scrollTop = 0;
     $('sheetFly').textContent = playing ? 'Continue tour from here' : 'Fly here';
-    $('sheetFly').hidden = (i === current && phase !== 'explore' && !playing);
+    $('sheetFly').hidden = (i === current && phase !== 'explore');
     root.classList.add('info');
     updateUI();
   }
@@ -690,7 +709,7 @@ async function start() {
     if (!playing) return;
     if (last !== null && phase === 'orbit') {
       const dt = Math.min((ts - last) / 1000, 0.1);
-      orbitAngle += dt * 360 / CONFIG.orbitSeconds * speed();
+      orbitAngle += dt * 360 / CONFIG.orbitSeconds;
       ring();
       if (orbitAngle >= 360) {
         if (current < N - 1) flyTo(current + 1);
@@ -707,11 +726,9 @@ async function start() {
   function updateUI() {
     const i = current >= 0 ? current : selected;
     if (current >= 0) {
-      $('subtitle').textContent = 'Stop ' + (current + 1) + ' of ' + N + ': ' + STOPS[current].name;
       $('mnum').textContent = 'Stop ' + (current + 1) + ' of ' + N;
       $('mname').textContent = STOPS[current].name;
     } else {
-      $('subtitle').textContent = CONFIG.subtitle;
       $('mnum').textContent = 'Overview';
       $('mname').textContent = CONFIG.title;
     }
@@ -742,8 +759,8 @@ async function start() {
   chips.forEach((c, i) => c.addEventListener('click', () => { flyTo(i); showInfo(i); }));
 
   /* start overhead, free to explore */
-  applyPose(topPose());
-  enterExplore();
+  applyPose(TOP);
+  enterExplore(TOP);
   updateUI();
 }
 
