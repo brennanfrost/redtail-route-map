@@ -2,7 +2,7 @@
 <style>
 #redtail-route{--red:#d42a2f;--red-hi:#e8453c;--ink:#fff;--muted:rgba(255,255,255,.7);--glass:rgba(24,19,16,.68);--rim:rgba(255,255,255,.14);--font:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);position:relative;width:100%;height:var(--rt-height,min(82svh,760px));min-height:440px;overflow:hidden;border-radius:var(--rt-radius,14px);background:#3a2a22;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #redtail-route *{box-sizing:border-box}
-#redtail-route #rt-map{position:absolute;inset:0}
+#redtail-route #rt-map{position:absolute;inset:0;touch-action:none}
 #redtail-route #rt-map canvas{touch-action:none;cursor:grab}
 #redtail-route #rt-map canvas:active{cursor:grabbing}
 #redtail-route .cesium-viewer-bottom{top:8px;bottom:auto;left:8px;right:auto;padding:0;max-width:calc(100% - 16px)}
@@ -10,9 +10,9 @@
 #redtail-route .cesium-credit-logoContainer{display:inline-flex;align-items:center;margin:0;padding:0}
 #redtail-route .cesium-credit-logoContainer a[href*="cesium.com"]{display:none!important}
 #redtail-route .cesium-credit-logoContainer img{height:16px!important;width:auto!important}
-#redtail-route .cesium-credit-expand-link{display:none!important}
-#redtail-route .cesium-credit-textContainer{display:none;flex-basis:100%;max-width:340px;padding:6px 9px;border-radius:8px;background:rgba(24,19,16,.82)}
-#redtail-route.show-credits .cesium-credit-textContainer{display:block}
+#redtail-route .cesium-credit-expand-link,#redtail-route .cesium-credit-lightbox-overlay{display:none!important}
+#redtail-route .cesium-credit-textContainer{display:none!important;flex-basis:100%;max-width:340px;padding:6px 9px;border-radius:8px;background:rgba(24,19,16,.82)}
+#redtail-route.show-credits .cesium-credit-textContainer{display:block!important}
 #redtail-route .cesium-credit-textContainer *{background:none!important;font-size:10px!important}
 #redtail-route .rt-data{font:600 10px/1 system-ui,sans-serif;color:#fff;background:rgba(24,19,16,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 8px;margin:0;cursor:pointer}
 
@@ -133,34 +133,35 @@
 (function () {
 /* ================= SETTINGS ================= */
 const CONFIG = {
+  invertDrag: false,     // false: the landscape follows your finger. true: flips both directions
   googleApiKey: 'AIzaSyAMjUDtzFKAbU3br_Tl6YriHtoB4C4YAN0',
   title: 'Canyonlands Airplane Tour',
   subtitle: 'Fly to each landmark on the tour',
-  orbitSeconds: 20,      // one full 360° circle at Normal speed
-  orbitPitchDeg: -28,    // camera tilt while circling (negative = looking down)
+  orbitSeconds: 24,      // one full 360° circle at Normal speed
+  orbitPitchDeg: -32,    // camera tilt while circling (negative = looking down)
   home: { name: 'Canyonlands Field (KCNY)', lat: 38.757631, lon: -109.753463 }
 };
 
 /* Tour stops, in order, from the Garmin flight plan (KCNY to KCNY).
    range = how far the camera circles from the landmark, in meters. */
 const STOPS = [
-  { name: 'Jewel Tibbetts Arch',        lat: 38.62825788612484, lon: -109.8638645570713, range: 1300 },
-  { name: 'Hell Roaring Canyon',        lat: 38.61629,          lon: -109.89132,         range: 3000 },
-  { name: 'Mineral Canyon',             lat: 38.54319,          lon: -109.92719,         range: 3000 },
-  { name: 'Upheaval Dome',              lat: 38.43872,          lon: -109.92841,         range: 4500 },
-  { name: 'Grand View Point',           lat: 38.30678412821815, lon: -109.8560061207679, range: 3200 },
-  { name: 'The Chocolate Drops',        lat: 38.2223,           lon: -109.99624,         range: 1600 },
-  { name: 'Chimney Rock',               lat: 38.1564200027701,  lon: -110.0233568893105, range: 1600 },
-  { name: 'The Confluence',             lat: 38.18858,          lon: -109.87961,         range: 3800 },
-  { name: 'Druid Arch',                 lat: 38.08876,          lon: -109.83244,         range: 1100 },
-  { name: 'Kirk Arch',                  lat: 37.99144,          lon: -109.76037,         range: 1100 },
-  { name: 'Elephant Trunk Arch',        lat: 38.00256,          lon: -109.75975,         range: 1100 },
-  { name: 'Angel Arch',                 lat: 38.0517,           lon: -109.75627,         range: 1100 },
-  { name: 'Castle Arch',                lat: 38.065,            lon: -109.74051,         range: 1100 },
-  { name: 'The Loop',                   lat: 38.23929,          lon: -109.8164,          range: 4500 },
-  { name: 'Dead Horse Point State Park',lat: 38.47078,          lon: -109.74045,         range: 3500 },
-  { name: 'Potash Ponds',               lat: 38.48727339598815, lon: -109.6837016489806, range: 4200 },
-  { name: 'Corona Arch',                lat: 38.58398781784155, lon: -109.6289062332708, range: 1100 }
+  { name: 'Jewel Tibbetts Arch',        lat: 38.62825788612484, lon: -109.8638645570713, range: 2600 },
+  { name: 'Hell Roaring Canyon',        lat: 38.61629,          lon: -109.89132,         range: 5500 },
+  { name: 'Mineral Canyon',             lat: 38.54319,          lon: -109.92719,         range: 5500 },
+  { name: 'Upheaval Dome',              lat: 38.43872,          lon: -109.92841,         range: 7500 },
+  { name: 'Grand View Point',           lat: 38.30678412821815, lon: -109.8560061207679, range: 6000 },
+  { name: 'The Chocolate Drops',        lat: 38.2223,           lon: -109.99624,         range: 3000 },
+  { name: 'Chimney Rock',               lat: 38.1564200027701,  lon: -110.0233568893105, range: 3000 },
+  { name: 'The Confluence',             lat: 38.18858,          lon: -109.87961,         range: 7000 },
+  { name: 'Druid Arch',                 lat: 38.08876,          lon: -109.83244,         range: 2400 },
+  { name: 'Kirk Arch',                  lat: 37.99144,          lon: -109.76037,         range: 2400 },
+  { name: 'Elephant Trunk Arch',        lat: 38.00256,          lon: -109.75975,         range: 2400 },
+  { name: 'Angel Arch',                 lat: 38.0517,           lon: -109.75627,         range: 2400 },
+  { name: 'Castle Arch',                lat: 38.065,            lon: -109.74051,         range: 2400 },
+  { name: 'The Loop',                   lat: 38.23929,          lon: -109.8164,          range: 7500 },
+  { name: 'Dead Horse Point State Park',lat: 38.47078,          lon: -109.74045,         range: 6500 },
+  { name: 'Potash Ponds',               lat: 38.48727339598815, lon: -109.6837016489806, range: 7500 },
+  { name: 'Corona Arch',                lat: 38.58398781784155, lon: -109.6289062332708, range: 2400 }
 ];
 /* ============================================ */
 
@@ -176,7 +177,7 @@ const $ = id => document.getElementById('rt-' + id);
 const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const angDiff = (a, b) => ((b - a + 540) % 360) - 180;
-const ease = u => u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3) / 2;
+const ease = u => 0.5 - 0.5 * Math.cos(Math.PI * u);
 function bearing(a, b) {
   const y = Math.sin(rad(b.lon-a.lon)) * Math.cos(rad(b.lat));
   const x = Math.cos(rad(a.lat))*Math.sin(rad(b.lat)) - Math.sin(rad(a.lat))*Math.cos(rad(b.lat))*Math.cos(rad(b.lon-a.lon));
@@ -265,6 +266,8 @@ async function start() {
   let tiles;
   try {
     tiles = await C.createGooglePhotorealistic3DTileset(undefined, { showCreditsOnScreen: true });
+    tiles.maximumScreenSpaceError = 20;
+    tiles.cacheBytes = 768 * 1024 * 1024;
     scene.primitives.add(tiles);
     let warned = false;
     tiles.tileFailed.addEventListener(err => {
@@ -278,8 +281,13 @@ async function start() {
 
   /* ---------- landmark positions (ground height measured from the 3D imagery) ---------- */
   const pts = STOPS.concat([CONFIG.home]);
-  pts.forEach(p => { p.h = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
-  const setH = (p, h) => { if (isFinite(h)) { p.h = h; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, h); } };
+  pts.forEach(p => { p.h = p.hT = DEFAULT_H; p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h); });
+  const setH = (p, h) => { if (isFinite(h)) p.hT = h; };
+  scene.preUpdate.addEventListener(() => pts.forEach(p => {
+    if (Math.abs(p.hT - p.h) < 0.5) return;
+    p.h += (p.hT - p.h) * 0.05;
+    p.pos = C.Cartesian3.fromDegrees(p.lon, p.lat, p.h);
+  }));
   if (scene.sampleHeightMostDetailed) {
     scene.sampleHeightMostDetailed(pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)))
       .then(res => res.forEach((c, i) => c && setH(pts[i], c.height)))
@@ -372,8 +380,10 @@ async function start() {
     if (current >= 0 && prev === STOPS[i]) orbitStart = from.heading;
     orbitAngle = 0; user.yaw = 0;
     const dist = km(prev, STOPS[i]);
-    const dur = reduceMotion() ? 1 : clamp(2600 + dist * 260, 3000, 9000) / Number($('speed').value || 1);
-    flight = { from, t0: performance.now(), dur, hop: clamp(dist / 12, 0, 1.1) };
+    const fromOverview = from.range > STOPS[i].range * 2.5;
+    const dur = reduceMotion() ? 1 : clamp(4200 + dist * 380, 4500, 12000) / Number($('speed').value || 1);
+    const hop = fromOverview ? 0 : clamp(Math.log((dist * 1000) / (STOPS[i].range * 3)), 0, 0.45);
+    flight = { from, t0: performance.now(), dur, hop };
     phase = 'fly';
     updateUI();
   }
@@ -400,42 +410,71 @@ async function start() {
   }
 
   /* ---------- touch / mouse: one finger turns and tilts, two fingers zoom ---------- */
-  const canvas = viewer.canvas, ptrs = new Map();
-  let pinch0 = 0;
+  const area = $('map');
   const hideHint = () => $('hint').classList.add('gone');
   setTimeout(hideHint, 6000);
-  const pinchDist = () => { const a = [...ptrs.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
   const ov = () => phase === 'overview' || phase === 'toOverview';
-  canvas.addEventListener('pointerdown', e => {
+  const SIGN = CONFIG.invertDrag ? -1 : 1;
+  function turn(dx, dy) {
+    if (ov()) { user.ovYaw -= SIGN * dx * 0.3; user.ovPitch = clamp(user.ovPitch - SIGN * dy * 0.25, -89, -5); }
+    else { user.yaw -= SIGN * dx * 0.3; user.pitch = clamp(user.pitch - SIGN * dy * 0.25, -89, -3); }
+  }
+  function zoomBy(f) {
+    if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
+    else user.zoom = clamp(user.zoom * f, 0.2, 4);
+  }
+
+  // Touch (phones/tablets)
+  let t1 = null, pinch0 = 0;
+  const tdist = tl => Math.hypot(tl[0].clientX - tl[1].clientX, tl[0].clientY - tl[1].clientY);
+  const onControl = e => e.target && e.target.closest && e.target.closest('button, a');
+  function tStart(e) {
+    if (onControl(e)) return;
     hideHint();
-    canvas.setPointerCapture(e.pointerId);
-    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (ptrs.size === 2) pinch0 = pinchDist();
-  });
-  canvas.addEventListener('pointermove', e => {
-    const p = ptrs.get(e.pointerId);
-    if (!p) return;
-    const dx = e.clientX - p.x, dy = e.clientY - p.y;
-    p.x = e.clientX; p.y = e.clientY;
-    if (ptrs.size === 1) {
-      if (ov()) { user.ovYaw -= dx * 0.3; user.ovPitch = clamp(user.ovPitch - dy * 0.25, -89, -5); }
-      else { user.yaw -= dx * 0.3; user.pitch = clamp(user.pitch - dy * 0.25, -89, -3); }
-    } else if (ptrs.size === 2) {
-      const d = pinchDist();
-      if (pinch0 > 0 && d > 0) {
-        const f = pinch0 / d;
-        if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
-        else user.zoom = clamp(user.zoom * f, 0.15, 4);
-      }
+    if (e.touches.length === 1) { t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0; }
+    else if (e.touches.length >= 2) { t1 = null; pinch0 = tdist(e.touches); }
+    e.preventDefault();
+  }
+  function tMove(e) {
+    if (onControl(e)) return;
+    e.preventDefault();
+    if (e.touches.length === 1 && t1) {
+      const x = e.touches[0].clientX, y = e.touches[0].clientY;
+      turn(x - t1.x, y - t1.y);
+      t1 = { x, y };
+    } else if (e.touches.length >= 2) {
+      const d = tdist(e.touches);
+      if (pinch0 > 0 && d > 0) zoomBy(pinch0 / d);
       pinch0 = d;
     }
-  });
-  const lift = e => { ptrs.delete(e.pointerId); pinch0 = ptrs.size === 2 ? pinchDist() : 0; };
-  canvas.addEventListener('pointerup', lift);
-  canvas.addEventListener('pointercancel', lift);
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  function tEnd(e) {
+    if (e.touches.length === 1) { t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch0 = 0; }
+    else if (e.touches.length === 0) { t1 = null; pinch0 = 0; }
+  }
+  area.addEventListener('touchstart', tStart, { passive: false, capture: true });
+  area.addEventListener('touchmove', tMove, { passive: false, capture: true });
+  area.addEventListener('touchend', tEnd, { capture: true });
+  area.addEventListener('touchcancel', tEnd, { capture: true });
+
+  // Mouse (computers)
+  let m1 = null;
+  area.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || onControl(e)) return;
+    hideHint(); m1 = { x: e.clientX, y: e.clientY };
+    try { area.setPointerCapture(e.pointerId); } catch (_) {}
+  }, true);
+  area.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || !m1) return;
+    turn(e.clientX - m1.x, e.clientY - m1.y);
+    m1 = { x: e.clientX, y: e.clientY };
+  }, true);
+  const mUp = e => { if (e.pointerType === 'mouse') m1 = null; };
+  area.addEventListener('pointerup', mUp, true);
+  area.addEventListener('pointercancel', mUp, true);
+  area.addEventListener('contextmenu', e => e.preventDefault());
   let toastTimer;
-  canvas.addEventListener('wheel', e => {
+  area.addEventListener('wheel', e => {
     if (!(e.ctrlKey || e.metaKey)) {
       $('toast').textContent = 'Hold Ctrl or ⌘ and scroll to zoom';
       $('toast').classList.add('on');
@@ -444,9 +483,7 @@ async function start() {
       return;
     }
     e.preventDefault(); hideHint();
-    const f = Math.exp(e.deltaY * 0.004);
-    if (ov()) user.ovZoom = clamp(user.ovZoom * f, 0.25, 2.5);
-    else user.zoom = clamp(user.zoom * f, 0.15, 4);
+    zoomBy(Math.exp(e.deltaY * 0.004));
   }, { passive: false });
 
   /* ---------- tour playback ---------- */
